@@ -1,13 +1,13 @@
-# 📦 Template
+# 🤖 Automatons
 
-_A pre-configured template repository for DEV x BOTS._
+_An automation framework for developers._
 
-This repository is pre-configured with default tooling and configurations for
-the [DEV x BOTS] organization, and it can be used as a template repository to
-quickly bootstrap new projects.
+This project implements a set of tools and components to automate software
+development workflows. At its core, _automatons_ perform a series of actions
+when they are triggered by an outside event.
+
+The project is in an early prototyping phase, and not yet ready for public use.
 
 ## License
 
-Copyright (c) 2022 Jan David Nose. All rights reserved.
-
-[dev x bots]: https://github.com/devxbots
+Copyright (c) 2022 DEV x BOTS. All rights reserved.
