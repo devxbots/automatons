@@ -22,3 +22,5 @@ publish = false
 # https://doc.rust-lang.org/cargo/reference/manifest.html
 
 [dependencies]
+anyhow = "1.0.59"
+thiserror = "1.0.31"
