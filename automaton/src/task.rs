@@ -9,6 +9,7 @@ use crate::{Error, State};
 /// the error gracefully. Second, a task can succeed and simply trigger the transition to the next
 /// task. Third, a task can indicate that the automaton should finish early. This can be useful if
 /// no work needs to be done.
+#[derive(Copy, Clone, Eq, PartialEq, Ord, PartialOrd, Hash, Debug)]
 pub enum Transition {
     /// Transition to the next task.
     Next,

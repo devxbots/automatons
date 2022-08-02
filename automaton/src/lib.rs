@@ -71,6 +71,7 @@ pub trait Automaton {
     }
 }
 
+#[derive(Copy, Clone, Eq, PartialEq, Ord, PartialOrd, Hash, Debug, Default)]
 struct NoopTask;
 
 #[async_trait]
@@ -84,5 +85,22 @@ impl Task for NoopTask {
 
     async fn execute(&mut self, _state: &mut State) -> Result<Transition, Error> {
         Ok(Transition::Complete)
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use super::NoopTask;
+
+    #[test]
+    fn trait_send() {
+        fn assert_send<T: Send>() {}
+        assert_send::<NoopTask>();
+    }
+
+    #[test]
+    fn trait_sync() {
+        fn assert_sync<T: Sync>() {}
+        assert_sync::<NoopTask>();
     }
 }
