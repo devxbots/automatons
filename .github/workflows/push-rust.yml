@@ -4,6 +4,7 @@ name: Rust
 "on":
   push:
     paths:
+      - ".github/workflows/push-rust.yml"
       - "**.rs"
       - "**.toml"
 
@@ -82,7 +83,7 @@ jobs:
       - name: Determine whether to measure test coverage
         id: coverage
         run: |
-          if [[ "${{ secrets.CODECOV_TOKEN }}" != "" ]]; then
+          if [[ "${{ secrets.COVERALLS_TOKEN }}" != "" ]]; then
             echo "Enable collection of test coverage"
             echo "::set-output name=enable::true"
           else
@@ -101,18 +102,5 @@ jobs:
         uses: actions-rs/tarpaulin@master
         if: ${{ steps.coverage.outputs.enable == 'true' }}
         with:
-          args: --skip-clean
+          args: --skip-clean --coveralls ${{ secrets.COVERALLS_TOKEN }}
           version: 0.20.0
-
-      - name: Upload to codecov.io
-        uses: codecov/codecov-action@v3
-        if: ${{ steps.coverage.outputs.enable == 'true' }}
-        with:
-          token: ${{ secrets.CODECOV_TOKEN }}
-
-      - name: Archive code coverage results
-        uses: actions/upload-artifact@v3
-        if: ${{ steps.coverage.outputs.enable == 'true' }}
-        with:
-          name: code-coverage-report
-          path: cobertura.xml
