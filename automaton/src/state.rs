@@ -4,25 +4,6 @@ use std::hash::{BuildHasherDefault, Hasher};
 
 type AnyMap = HashMap<TypeId, Box<dyn Any + Send + Sync>, BuildHasherDefault<IdHasher>>;
 
-#[derive(Default)]
-struct IdHasher(u64);
-
-impl Hasher for IdHasher {
-    #[inline]
-    fn finish(&self) -> u64 {
-        self.0
-    }
-
-    fn write(&mut self, _: &[u8]) {
-        unreachable!("TypeId calls write_u64");
-    }
-
-    #[inline]
-    fn write_u64(&mut self, id: u64) {
-        self.0 = id;
-    }
-}
-
 /// In-memory state for tasks
 ///
 /// Steps in a task can share information with each other by putting it into a shared state. The
@@ -97,15 +78,18 @@ impl State {
     /// # Example
     ///
     /// ```rust
-    /// use automaton::State;
-    ///
+    /// # use automaton::State;
+    /// #
+    /// # fn main() -> Option<u32> {
     /// let mut state = State::new();
     /// state.insert(2u32);
     ///
     /// let a: u32 = 3;
-    /// let b = state.get().unwrap();
+    /// let b = state.get()?;
     ///
     /// assert_eq!(6, a * b);
+    /// # None
+    /// # }
     /// ```
     pub fn get<T: Send + Sync + 'static>(&self) -> Option<&T> {
         self.store
@@ -122,21 +106,43 @@ impl State {
     /// # Example
     ///
     /// ```rust
-    /// use automaton::State;
-    ///
+    /// # use automaton::State;
+    /// #
+    /// # fn main() -> Option<u32> {
     /// let mut state = State::new();
     /// state.insert(String::from("Hello"));
     ///
-    /// let mut string = state.get_mut::<String>().unwrap();
+    /// let mut string = state.get_mut::<String>()?;
     /// string.push_str(", World!");
     ///
-    /// assert_eq!(&String::from("Hello, World!"), state.get::<String>().unwrap());
+    /// assert_eq!(&String::from("Hello, World!"), state.get::<String>()?);
+    /// # None
+    /// # }
     /// ```
     pub fn get_mut<T: Send + Sync + 'static>(&mut self) -> Option<&mut T> {
         self.store
             .as_mut()
             .get_mut(&TypeId::of::<T>())
             .and_then(|boxed| (&mut **boxed as &mut (dyn Any + 'static)).downcast_mut())
+    }
+}
+
+#[derive(Default)]
+struct IdHasher(u64);
+
+impl Hasher for IdHasher {
+    #[inline]
+    fn finish(&self) -> u64 {
+        self.0
+    }
+
+    fn write(&mut self, _: &[u8]) {
+        unreachable!("TypeId calls write_u64");
+    }
+
+    #[inline]
+    fn write_u64(&mut self, id: u64) {
+        self.0 = id;
     }
 }
 
