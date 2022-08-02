@@ -20,7 +20,6 @@ pub trait Step {
         Self: Sized;
 
     fn execute(&mut self) -> Transition;
-    fn executed(&self) -> bool;
 }
 
 pub enum Transition {
