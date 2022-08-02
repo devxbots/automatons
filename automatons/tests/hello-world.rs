@@ -1,29 +1,19 @@
+use automatons::engine::Engine;
 use automatons::task::{Step, Task, Transition};
 
-struct Hello {
-    executed: bool,
-}
-
-struct World {
-    executed: bool,
-}
+struct Hello {}
+struct World {}
 
 impl Step for Hello {
     fn init() -> Box<dyn Step>
     where
         Self: Sized,
     {
-        Box::new(Hello { executed: false })
+        Box::new(Hello {})
     }
 
     fn execute(&mut self) -> Transition {
-        self.executed = true;
-
         Transition::Next
-    }
-
-    fn executed(&self) -> bool {
-        self.executed
     }
 }
 
@@ -32,17 +22,11 @@ impl Step for World {
     where
         Self: Sized,
     {
-        Box::new(World { executed: false })
+        Box::new(World {})
     }
 
     fn execute(&mut self) -> Transition {
-        self.executed = true;
-
         Transition::Complete
-    }
-
-    fn executed(&self) -> bool {
-        self.executed
     }
 }
 
@@ -50,17 +34,7 @@ impl Step for World {
 fn hello_world() {
     let task = Task::new(vec![Box::new(Hello::init), Box::new(World::init)]);
 
-    let hello_init_fn = task.steps().get(0).unwrap();
-    let mut hello = hello_init_fn();
+    let result = Engine::run(&task);
 
-    let transition = hello.execute();
-    assert!(matches!(transition, Transition::Next));
-    assert!(hello.executed());
-
-    let world_init_fn = task.steps().get(1).unwrap();
-    let mut world = world_init_fn();
-
-    let transition = world.execute();
-    assert!(matches!(transition, Transition::Complete));
-    assert!(world.executed());
+    assert!(result.is_ok());
 }
