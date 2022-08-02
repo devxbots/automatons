@@ -1,5 +1,5 @@
 [package]
-name = "automatons"
+name = "automaton"
 version = "0.0.0"
 edition = "2021"
 
@@ -14,7 +14,7 @@ keywords = [
     "github-app",
 ]
 
-# automatons is currently in a prototyping phase, during which we won't release
+# automaton is currently in a prototyping phase, during which we won't release
 # it to crates.io yet.
 publish = false
 
