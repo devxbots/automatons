@@ -3,15 +3,7 @@ name = "automatons"
 version = "0.0.0"
 edition = "2021"
 
-# The `typetag` dependency requires atleast Rust 1.62.
-# https://github.com/dtolnay/typetag/releases/tag/0.2.0
-rust-version = "1.62"
-
 # See more keys and their definitions at
 # https://doc.rust-lang.org/cargo/reference/manifest.html
 
 [dependencies]
-serde = { version = "1.0.140", features = ["derive"] }
-serde_yaml = "0.9.2"
-thiserror = "1.0.31"
-typetag = "0.2.2"
