@@ -3,8 +3,9 @@ name = "automatons"
 version = "0.1.0"
 edition = "2021"
 
+description = "Automation framework for software developers"
 repository = "https://github.com/devxbots/automatons"
-license = "MIT or Apache-2.0"
+license = "MIT OR Apache-2.0"
 
 categories = [
     "development-tools"

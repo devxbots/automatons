@@ -3,8 +3,9 @@ name = "automatons-github"
 version = "0.0.0"
 edition = "2021"
 
+description = "GitHub integration for the automatons framework"
 repository = "https://github.com/devxbots/automatons"
-license = "MIT or Apache-2.0"
+license = "MIT OR Apache-2.0"
 
 categories = [
     "development-tools"
