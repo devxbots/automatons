@@ -7,7 +7,7 @@
 /// # Example
 ///
 /// ```rust
-/// use automaton_github::id;
+/// use automatons_github::id;
 ///
 /// id!(RepositoryId);
 /// id!(UserId);
@@ -64,7 +64,7 @@ macro_rules! id {
 /// # Example
 ///
 /// ```rust
-/// use automaton_github::name;
+/// use automatons_github::name;
 ///
 /// name!(RepositoryName);
 /// name!(UserName);

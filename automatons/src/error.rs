@@ -16,7 +16,7 @@ use thiserror::Error;
 /// use std::io::ErrorKind;
 ///
 /// use anyhow::Context;
-/// use automaton::Error;
+/// use automatons::Error;
 ///
 /// fn connect() -> Result<(), Error> {
 ///     let failure = Err(std::io::Error::new(ErrorKind::TimedOut, "connection timed out"));
