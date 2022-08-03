@@ -96,11 +96,11 @@ jobs:
         if: ${{ steps.coverage.outputs.enable != 'true' }}
         with:
           command: test
-          args: --verbose
+          args: --verbose --all-features
 
       - name: Run tests with test coverage
         uses: actions-rs/tarpaulin@master
         if: ${{ steps.coverage.outputs.enable == 'true' }}
         with:
-          args: --skip-clean --coveralls ${{ secrets.COVERALLS_TOKEN }}
+          args: --all-features --skip-clean --coveralls ${{ secrets.COVERALLS_TOKEN }}
           version: 0.20.0
