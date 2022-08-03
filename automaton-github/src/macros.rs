@@ -14,7 +14,11 @@
 /// ```
 #[macro_export]
 macro_rules! id {
-    ($id:ident) => {
+    (
+        $(#[$meta:meta])*
+        $id:ident
+    ) => {
+        $(#[$meta])*
         #[derive(Copy, Clone, Eq, PartialEq, Ord, PartialOrd, Hash, Debug)]
         #[cfg_attr(feature = "serde", derive(serde::Deserialize, serde::Serialize))]
         pub struct $id(u64);
@@ -67,7 +71,11 @@ macro_rules! id {
 /// ```
 #[macro_export]
 macro_rules! name {
-    ($name:ident) => {
+    (
+        $(#[$meta:meta])*
+        $name:ident
+    ) => {
+        $(#[$meta])*
         #[derive(Clone, Eq, PartialEq, Ord, PartialOrd, Hash, Debug)]
         #[cfg_attr(feature = "serde", derive(serde::Deserialize, serde::Serialize))]
         pub struct $name(String);
@@ -112,7 +120,10 @@ macro_rules! name {
 mod tests {
     use crate::{id, name};
 
-    id!(TestId);
+    id!(
+        /// Identifier for tests
+        TestId
+    );
 
     #[test]
     fn id() {
@@ -127,7 +138,10 @@ mod tests {
         let _id: TestId = 42.into();
     }
 
-    name!(TestName);
+    name!(
+        /// Name for tests
+        TestName
+    );
 
     #[test]
     fn name() {
