@@ -14,10 +14,6 @@ keywords = [
     "github-app",
 ]
 
-# automaton-github is currently in a prototyping phase, during which we won't
-# release it to crates.io yet.
-publish = false
-
 [features]
 serde = ["dep:serde", "dep:serde_json", "url/serde"]
 
