@@ -1,5 +1,6 @@
 use std::any::{Any, TypeId};
 use std::collections::HashMap;
+use std::fmt::Debug;
 use std::hash::{BuildHasherDefault, Hasher};
 
 type AnyMap = HashMap<TypeId, Box<dyn Any + Send + Sync>, BuildHasherDefault<IdHasher>>;
@@ -32,6 +33,7 @@ pub struct State {
 
 impl State {
     /// Initializes an empty state.
+    #[cfg_attr(feature = "tracing", tracing::instrument)]
     pub fn new() -> Self {
         Self {
             store: Box::new(HashMap::default()),
@@ -58,7 +60,11 @@ impl State {
     /// state.insert(1u32);
     /// assert_eq!(Some(&1u32), state.get::<u32>());
     /// ```
-    pub fn insert<T: Send + Sync + 'static>(&mut self, val: T) -> Option<T> {
+    #[cfg_attr(feature = "tracing", tracing::instrument)]
+    pub fn insert<T: Send + Sync + 'static>(&mut self, val: T) -> Option<T>
+    where
+        T: Debug,
+    {
         self.store
             .insert(TypeId::of::<T>(), Box::new(val))
             .and_then(|boxed| {
@@ -80,7 +86,7 @@ impl State {
     /// ```rust
     /// # use automaton::State;
     /// #
-    /// # fn main() -> Option<u32> {
+    /// # fn example() -> Option<u32> {
     /// let mut state = State::new();
     /// state.insert(2u32);
     ///
@@ -91,6 +97,7 @@ impl State {
     /// # None
     /// # }
     /// ```
+    #[cfg_attr(feature = "tracing", tracing::instrument)]
     pub fn get<T: Send + Sync + 'static>(&self) -> Option<&T> {
         self.store
             .get(&TypeId::of::<T>())
@@ -108,7 +115,7 @@ impl State {
     /// ```rust
     /// # use automaton::State;
     /// #
-    /// # fn main() -> Option<u32> {
+    /// # fn example() -> Option<u32> {
     /// let mut state = State::new();
     /// state.insert(String::from("Hello"));
     ///
@@ -119,6 +126,7 @@ impl State {
     /// # None
     /// # }
     /// ```
+    #[cfg_attr(feature = "tracing", tracing::instrument)]
     pub fn get_mut<T: Send + Sync + 'static>(&mut self) -> Option<&mut T> {
         self.store
             .as_mut()
@@ -127,19 +135,22 @@ impl State {
     }
 }
 
-#[derive(Default)]
+#[derive(Debug, Default)]
 struct IdHasher(u64);
 
 impl Hasher for IdHasher {
+    #[cfg_attr(feature = "tracing", tracing::instrument)]
     #[inline]
     fn finish(&self) -> u64 {
         self.0
     }
 
+    #[cfg_attr(feature = "tracing", tracing::instrument)]
     fn write(&mut self, _: &[u8]) {
         unreachable!("TypeId calls write_u64");
     }
 
+    #[cfg_attr(feature = "tracing", tracing::instrument)]
     #[inline]
     fn write_u64(&mut self, id: u64) {
         self.0 = id;

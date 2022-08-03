@@ -14,8 +14,10 @@ async fn test() -> Result<(), Error> {
 }
 
 // Return type
+#[derive(Debug)]
 struct Message(String);
 // Automaton
+#[derive(Debug)]
 struct HelloWorld;
 // Task
 struct Hello;

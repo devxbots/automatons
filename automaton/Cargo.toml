@@ -25,6 +25,7 @@ publish = false
 anyhow = "1.0.59"
 async-trait = "0.1.57"
 thiserror = "1.0.31"
+tracing = { version = "0.1.36", optional = true }
 
 [dev-dependencies]
 tokio = { version = "1.20.1", features = ["full"] }
