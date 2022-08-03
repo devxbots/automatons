@@ -14,7 +14,7 @@ type AnyMap = HashMap<TypeId, Box<dyn Any + Send + Sync>, BuildHasherDefault<IdH
 /// # Example
 ///
 /// ```rust
-/// use automaton::State;
+/// use automatons::State;
 ///
 /// let mut state = State::new();
 /// state.insert("example");
@@ -48,7 +48,7 @@ impl State {
     /// # Example
     ///
     /// ```rust
-    /// # use automaton::State;
+    /// # use automatons::State;
     /// #
     /// let mut state = State::new();
     ///
@@ -84,7 +84,7 @@ impl State {
     /// # Example
     ///
     /// ```rust
-    /// # use automaton::State;
+    /// # use automatons::State;
     /// #
     /// # fn example() -> Option<u32> {
     /// let mut state = State::new();
@@ -113,7 +113,7 @@ impl State {
     /// # Example
     ///
     /// ```rust
-    /// # use automaton::State;
+    /// # use automatons::State;
     /// #
     /// # fn example() -> Option<u32> {
     /// let mut state = State::new();

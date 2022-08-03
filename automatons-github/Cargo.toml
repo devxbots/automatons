@@ -1,5 +1,5 @@
 [package]
-name = "automaton"
+name = "automatons-github"
 version = "0.0.0"
 edition = "2021"
 
@@ -14,18 +14,18 @@ keywords = [
     "github-app",
 ]
 
-# automaton is currently in a prototyping phase, during which we won't release
-# it to crates.io yet.
+# automaton-github is currently in a prototyping phase, during which we won't
+# release it to crates.io yet.
 publish = false
+
+[features]
+serde = ["dep:serde", "dep:serde_json", "url/serde"]
 
 # See more keys and their definitions at
 # https://doc.rust-lang.org/cargo/reference/manifest.html
 
 [dependencies]
-anyhow = "1.0.59"
-async-trait = "0.1.57"
-thiserror = "1.0.31"
+serde = { version = "1.0.141", features = ["derive"], optional = true }
+serde_json = { version = "1.0.83", optional = true }
 tracing = { version = "0.1.36", optional = true }
-
-[dev-dependencies]
-tokio = { version = "1.20.1", features = ["full"] }
+url = "2.2.2"

@@ -1,5 +1,5 @@
 [workspace]
 members = [
-    "automaton",
-    "automaton-github",
+    "automatons",
+    "automatons-github",
 ]

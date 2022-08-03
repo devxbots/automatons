@@ -1,7 +1,7 @@
 use anyhow::Context;
 use async_trait::async_trait;
 
-use automaton::{Automaton, Error, State, Task, Tasks, Transition};
+use automatons::{Automaton, Error, State, Task, Tasks, Transition};
 
 #[tokio::test]
 async fn test() -> Result<(), Error> {
