@@ -1,3 +1,5 @@
+use std::fmt::Debug;
+
 use async_trait::async_trait;
 
 pub use crate::error::Error;
@@ -19,7 +21,7 @@ pub type Tasks = Vec<Box<dyn Fn(&State) -> Box<dyn Task> + Send + Sync>>;
 /// Automatons execute a series of tasks. This trait defines the behavior that automatons must
 /// implement so that they can be executed inside a runtime.
 #[async_trait]
-pub trait Automaton {
+pub trait Automaton: Debug {
     /// Returns the tasks of the automaton.
     ///
     /// Automatons execute a series of tasks. They provide the engine a list of constructor
@@ -51,6 +53,7 @@ pub trait Automaton {
     /// by one until it either reaches the end of the list or a task returns `Transition::Complete`.
     /// In both instances, the task returned by the `complete_task` method is executed and the
     /// automaton shuts down.
+    #[cfg_attr(feature = "tracing", tracing::instrument)]
     async fn execute(&self) -> Result<State, Error> {
         let mut state = self.initial_state();
 
@@ -76,6 +79,7 @@ struct NoopTask;
 
 #[async_trait]
 impl Task for NoopTask {
+    #[cfg_attr(feature = "tracing", tracing::instrument)]
     fn init(_state: &State) -> Box<dyn Task>
     where
         Self: Sized,
@@ -83,6 +87,7 @@ impl Task for NoopTask {
         Box::new(NoopTask)
     }
 
+    #[cfg_attr(feature = "tracing", tracing::instrument)]
     async fn execute(&mut self, _state: &mut State) -> Result<Transition, Error> {
         Ok(Transition::Complete)
     }
