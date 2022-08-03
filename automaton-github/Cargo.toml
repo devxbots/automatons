@@ -22,3 +22,5 @@ publish = false
 # https://doc.rust-lang.org/cargo/reference/manifest.html
 
 [dependencies]
+serde = { version = "1.0.141", features = ["derive"], optional = true }
+tracing = { version = "0.1.36", optional = true }
