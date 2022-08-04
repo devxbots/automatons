@@ -1,0 +1,37 @@
+{
+  "id": 202198,
+  "slug": "devxbots-checkbot",
+  "node_id": "A_kwHOBjmsBc4AAxXW",
+  "owner": {
+    "login": "devxbots",
+    "id": 104442885,
+    "node_id": "O_kgDOBjmsBQ",
+    "avatar_url": "https://avatars.githubusercontent.com/u/104442885?v=4",
+    "gravatar_id": "",
+    "url": "https://api.github.com/users/devxbots",
+    "html_url": "https://github.com/devxbots",
+    "followers_url": "https://api.github.com/users/devxbots/followers",
+    "following_url": "https://api.github.com/users/devxbots/following{/other_user}",
+    "gists_url": "https://api.github.com/users/devxbots/gists{/gist_id}",
+    "starred_url": "https://api.github.com/users/devxbots/starred{/owner}{/repo}",
+    "subscriptions_url": "https://api.github.com/users/devxbots/subscriptions",
+    "organizations_url": "https://api.github.com/users/devxbots/orgs",
+    "repos_url": "https://api.github.com/users/devxbots/repos",
+    "events_url": "https://api.github.com/users/devxbots/events{/privacy}",
+    "received_events_url": "https://api.github.com/users/devxbots/received_events",
+    "type": "Organization",
+    "site_admin": false
+  },
+  "name": "devxbots/checkbot",
+  "description": "checkbot is a GitHub App that combines [required status checks](https://docs.github.com/en/repositories/configuring-branches-and-merges-in-your-repository/defining-the-mergeability-of-pull-requests/troubleshooting-required-status-checks) with [filters](https://docs.github.com/en/actions/using-workflows/workflow-syntax-for-github-actions#using-filters) for GitHub Actions. It makes it possible to skip workflows based on a filter, and still require jobs in the workflow to succeed if they run.",
+  "external_url": "https://devxbots.com",
+  "html_url": "https://github.com/apps/devxbots-checkbot",
+  "created_at": "2022-05-18T19:21:10Z",
+  "updated_at": "2022-07-20T10:28:56Z",
+  "permissions": {
+    "checks": "write",
+    "metadata": "read",
+    "single_file": "read"
+  },
+  "events": ["check_run"]
+}
