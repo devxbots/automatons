@@ -1,9 +1,14 @@
-use chrono::{DateTime, Utc};
 use std::fmt::{Display, Formatter};
+
+use chrono::{DateTime, Utc};
 use url::Url;
 
 use crate::resource::{Account, License, NodeId, Visibility};
 use crate::{id, name};
+
+pub use self::minimal::MinimalRepository;
+
+mod minimal;
 
 id!(
     /// Repository id
@@ -35,9 +40,10 @@ name!(
 #[derive(Clone, Eq, PartialEq, Ord, PartialOrd, Hash, Debug)]
 #[cfg_attr(feature = "serde", derive(serde::Deserialize, serde::Serialize))]
 pub struct Repository {
-    id: RepositoryId,
+    #[cfg_attr(feature = "serde", serde(flatten))]
+    minimal: MinimalRepository,
+
     node_id: NodeId,
-    name: RepositoryName,
     owner: Account,
     full_name: RepositoryFullName,
     description: String,
@@ -64,7 +70,6 @@ pub struct Repository {
     is_template: bool,
     web_commit_signoff_required: bool,
     html_url: Url,
-    url: Url,
     keys_url: Url,
     collaborators_url: Url,
     teams_url: Url,
@@ -114,7 +119,7 @@ impl Repository {
     /// Returns the repository's unique id.
     #[cfg_attr(feature = "tracing", tracing::instrument)]
     pub fn id(&self) -> RepositoryId {
-        self.id
+        self.minimal.id()
     }
 
     /// Returns the repository's node id.
@@ -126,7 +131,7 @@ impl Repository {
     /// Returns the repository's name.
     #[cfg_attr(feature = "tracing", tracing::instrument)]
     pub fn name(&self) -> &RepositoryName {
-        &self.name
+        self.minimal.name()
     }
 
     /// Returns the account which ows the repository.
@@ -288,7 +293,7 @@ impl Repository {
     /// Returns the API endpoint to query the repository.
     #[cfg_attr(feature = "tracing", tracing::instrument)]
     pub fn url(&self) -> &Url {
-        &self.url
+        self.minimal.url()
     }
 
     /// Returns the API endpoint to query the repository's keys.
@@ -564,7 +569,7 @@ mod tests {
     #[cfg(feature = "serde")]
     fn trait_deserialize() {
         let repository: Repository = serde_json::from_str(include_str!(
-            "../../tests/fixtures/resource/repository.json"
+            "../../../tests/fixtures/resource/repository.json"
         ))
         .unwrap();
 
@@ -575,7 +580,7 @@ mod tests {
     #[cfg(feature = "serde")]
     fn trait_display() {
         let repository: Repository = serde_json::from_str(include_str!(
-            "../../tests/fixtures/resource/repository.json"
+            "../../../tests/fixtures/resource/repository.json"
         ))
         .unwrap();
 
