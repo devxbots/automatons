@@ -12,6 +12,7 @@ pub use self::account::{Account, AccountId, AccountType, Login};
 pub use self::app::{App, AppId, AppName, AppSlug};
 pub use self::installation::{Installation, InstallationId};
 pub use self::license::{License, LicenseKey, LicenseName, SpdxId};
+pub use self::organization::{Organization, OrganizationId};
 pub use self::repository::{Repository, RepositoryFullName, RepositoryId, RepositoryName};
 pub use self::visibility::Visibility;
 
@@ -19,6 +20,7 @@ mod account;
 mod app;
 mod installation;
 mod license;
+mod organization;
 mod repository;
 mod visibility;
 

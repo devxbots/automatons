@@ -1,0 +1,14 @@
+{
+  "login": "devxbots",
+  "id": 104442885,
+  "node_id": "O_kgDOBjmsBQ",
+  "url": "https://api.github.com/orgs/devxbots",
+  "repos_url": "https://api.github.com/orgs/devxbots/repos",
+  "events_url": "https://api.github.com/orgs/devxbots/events",
+  "hooks_url": "https://api.github.com/orgs/devxbots/hooks",
+  "issues_url": "https://api.github.com/orgs/devxbots/issues",
+  "members_url": "https://api.github.com/orgs/devxbots/members{/member}",
+  "public_members_url": "https://api.github.com/orgs/devxbots/public_members{/member}",
+  "avatar_url": "https://avatars.githubusercontent.com/u/104442885?v=4",
+  "description": "We're here to make developers happier and more productive by automating the boring parts of programming"
+}
