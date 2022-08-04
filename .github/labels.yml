@@ -17,6 +17,12 @@
 - name: L-rust
   color: 34495e
   description: "Tag the Rust ecosystem"
+- name: P-automatons
+  color: f1c40f
+  description: "Tag the automatons package"
+- name: P-automatons-github
+  color: f1c40f
+  description: "Tag the automatons-github package"
 - name: R-added
   color: 95a5a6
   description: "Add a new feature to the release notes"
