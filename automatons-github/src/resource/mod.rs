@@ -10,6 +10,8 @@ use crate::name;
 
 pub use self::account::{Account, AccountId, AccountType, Login};
 pub use self::app::{App, AppId, AppName, AppSlug};
+pub use self::check_run::{CheckRunConclusion, CheckRunStatus};
+pub use self::check_suite::CheckSuite;
 pub use self::installation::{Installation, InstallationId};
 pub use self::license::{License, LicenseKey, LicenseName, SpdxId};
 pub use self::organization::{Organization, OrganizationId};
@@ -21,6 +23,8 @@ pub use self::visibility::Visibility;
 
 mod account;
 mod app;
+mod check_run;
+mod check_suite;
 mod installation;
 mod license;
 mod organization;
