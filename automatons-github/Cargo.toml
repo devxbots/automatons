@@ -16,12 +16,18 @@ keywords = [
 ]
 
 [features]
-serde = ["dep:serde", "dep:serde_json", "url/serde"]
+serde = [
+    "dep:serde",
+    "dep:serde_json",
+    "chrono/serde",
+    "url/serde",
+]
 
 # See more keys and their definitions at
 # https://doc.rust-lang.org/cargo/reference/manifest.html
 
 [dependencies]
+chrono = "0.4.19"
 serde = { version = "1.0.141", features = ["derive"], optional = true }
 serde_json = { version = "1.0.83", optional = true }
 tracing = { version = "0.1.36", optional = true }
