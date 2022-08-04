@@ -1,0 +1,23 @@
+{
+  "id": 1017334309,
+  "number": 27,
+  "url": "https://api.github.com/repos/devxbots/automatons/pulls/27",
+  "head": {
+    "ref": "create-app-resource",
+    "sha": "7fb3254b029acb55db7f8134d1526a080cd63c48",
+    "repo": {
+      "id": 518377950,
+      "url": "https://api.github.com/repos/devxbots/automatons",
+      "name": "automatons"
+    }
+  },
+  "base": {
+    "ref": "main",
+    "sha": "3de05046636de664eff97823e24c92d382fa6607",
+    "repo": {
+      "id": 518377950,
+      "url": "https://api.github.com/repos/devxbots/automatons",
+      "name": "automatons"
+    }
+  }
+}

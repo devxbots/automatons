@@ -13,6 +13,7 @@ pub use self::app::{App, AppId, AppName, AppSlug};
 pub use self::installation::{Installation, InstallationId};
 pub use self::license::{License, LicenseKey, LicenseName, SpdxId};
 pub use self::organization::{Organization, OrganizationId};
+pub use self::pull_request::{PullRequest, PullRequestBranch, PullRequestId, PullRequestNumber};
 pub use self::repository::{
     MinimalRepository, Repository, RepositoryFullName, RepositoryId, RepositoryName,
 };
@@ -23,6 +24,7 @@ mod app;
 mod installation;
 mod license;
 mod organization;
+mod pull_request;
 mod repository;
 mod visibility;
 
