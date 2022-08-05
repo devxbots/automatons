@@ -11,4 +11,5 @@
 
 mod macros;
 
+pub mod event;
 pub mod resource;
