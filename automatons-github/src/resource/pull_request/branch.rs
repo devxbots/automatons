@@ -1,6 +1,6 @@
 use std::fmt::{Display, Formatter};
 
-use crate::resource::MinimalRepository;
+use crate::resource::{GitRef, GitSha, MinimalRepository};
 
 /// Pull request branch reference
 ///
@@ -11,10 +11,10 @@ use crate::resource::MinimalRepository;
 #[cfg_attr(feature = "serde", derive(serde::Deserialize, serde::Serialize))]
 pub struct PullRequestBranch {
     #[cfg_attr(feature = "serde", serde(rename = "ref"))]
-    git_ref: String,
+    git_ref: GitRef,
 
     #[cfg_attr(feature = "serde", serde(rename = "sha"))]
-    git_sha: String,
+    git_sha: GitSha,
 
     repo: MinimalRepository,
 }
@@ -22,13 +22,13 @@ pub struct PullRequestBranch {
 impl PullRequestBranch {
     /// Returns the pull request branch's git ref.
     #[cfg_attr(feature = "tracing", tracing::instrument)]
-    pub fn git_ref(&self) -> &str {
+    pub fn git_ref(&self) -> &GitRef {
         &self.git_ref
     }
 
     /// Returns the pull request branch's git sha.
     #[cfg_attr(feature = "tracing", tracing::instrument)]
-    pub fn git_sha(&self) -> &str {
+    pub fn git_sha(&self) -> &GitSha {
         &self.git_sha
     }
 
@@ -66,7 +66,7 @@ mod test {
     fn trait_deserialize() {
         let branch: PullRequestBranch = serde_json::from_str(JSON).unwrap();
 
-        assert_eq!("main", branch.git_ref());
+        assert_eq!("main", branch.git_ref().get());
     }
 
     #[test]

@@ -5,7 +5,7 @@ use chrono::{DateTime, Utc};
 use serde::{Deserialize, Deserializer};
 use url::Url;
 
-use crate::resource::{App, CheckSuite, NodeId, PullRequest};
+use crate::resource::{App, CheckSuite, GitSha, NodeId, PullRequest};
 use crate::{id, name};
 
 pub use self::conclusion::CheckRunConclusion;
@@ -41,7 +41,7 @@ pub struct CheckRun {
     id: CheckRunId,
     node_id: NodeId,
     name: CheckRunName,
-    head_sha: String,
+    head_sha: GitSha,
     external_id: String,
     url: Url,
     html_url: Url,
@@ -79,7 +79,7 @@ impl CheckRun {
 
     /// Returns the check run's head SHA.
     #[cfg_attr(feature = "tracing", tracing::instrument)]
-    pub fn head_sha(&self) -> &str {
+    pub fn head_sha(&self) -> &GitSha {
         &self.head_sha
     }
 

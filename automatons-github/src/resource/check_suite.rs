@@ -4,7 +4,9 @@ use chrono::{DateTime, Utc};
 use url::Url;
 
 use crate::id;
-use crate::resource::{App, CheckRunConclusion, CheckRunStatus, NodeId, PullRequest};
+use crate::resource::{
+    App, CheckRunConclusion, CheckRunStatus, GitRef, GitSha, NodeId, PullRequest,
+};
 
 id!(
     /// Check suite id
@@ -27,13 +29,13 @@ id!(
 pub struct CheckSuite {
     id: CheckSuiteId,
     node_id: NodeId,
-    head_branch: String,
-    head_sha: String,
+    head_branch: GitRef,
+    head_sha: GitSha,
     status: CheckRunStatus,
     conclusion: Option<CheckRunConclusion>,
     url: Url,
-    before: String,
-    after: String,
+    before: GitSha,
+    after: GitSha,
     pull_requests: Vec<PullRequest>,
     app: App,
     created_at: DateTime<Utc>,
@@ -55,13 +57,13 @@ impl CheckSuite {
 
     /// Returns the check suite's head branch.
     #[cfg_attr(feature = "tracing", tracing::instrument)]
-    pub fn head_branch(&self) -> &str {
+    pub fn head_branch(&self) -> &GitRef {
         &self.head_branch
     }
 
     /// Returns the check suite's head SHA.
     #[cfg_attr(feature = "tracing", tracing::instrument)]
-    pub fn head_sha(&self) -> &str {
+    pub fn head_sha(&self) -> &GitSha {
         &self.head_sha
     }
 
@@ -85,13 +87,13 @@ impl CheckSuite {
 
     /// Returns the check suite's parent commit.
     #[cfg_attr(feature = "tracing", tracing::instrument)]
-    pub fn before(&self) -> &str {
+    pub fn before(&self) -> &GitSha {
         &self.before
     }
 
     /// Returns the check suite's head commit.
     #[cfg_attr(feature = "tracing", tracing::instrument)]
-    pub fn after(&self) -> &str {
+    pub fn after(&self) -> &GitSha {
         &self.after
     }
 
