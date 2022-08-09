@@ -30,7 +30,7 @@ pub trait Task: Send + Sync {
     ///
     /// Tasks are initialized by the engine when the previous task has finished successfully. If
     /// they need any data, they can retrieve it from the shared state.
-    fn init(state: &State) -> Box<dyn Task>
+    fn init(state: &State) -> Result<Box<dyn Task>, Error>
     where
         Self: Sized;
 

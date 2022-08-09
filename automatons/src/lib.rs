@@ -14,7 +14,7 @@ mod task;
 ///
 /// Automatons execute a series of tasks. The tasks are provided as a list of constructor functions
 /// so that the automaton can initialize the tasks one by one.
-pub type Tasks = Vec<Box<dyn Fn(&State) -> Box<dyn Task> + Send + Sync>>;
+pub type Tasks = Vec<Box<dyn Fn(&State) -> Result<Box<dyn Task>, Error> + Send + Sync>>;
 
 /// Trait for automatons
 ///
@@ -42,7 +42,7 @@ pub trait Automaton: Debug {
     /// task is executed. This can be useful to perform any teardown actions, for example to remove
     /// resources that were created in a previous step. By default, a "noop" task is executed that
     /// performs no action.
-    fn complete_task(&self, state: &State) -> Box<dyn Task> {
+    fn complete_task(&self, state: &State) -> Result<Box<dyn Task>, Error> {
         NoopTask::init(state)
     }
 
@@ -58,7 +58,7 @@ pub trait Automaton: Debug {
         let mut state = self.initial_state();
 
         for task_init_fn in self.tasks().iter() {
-            let mut task = task_init_fn(&state);
+            let mut task = task_init_fn(&state)?;
             let transition = task.execute(&mut state).await?;
 
             match transition {
@@ -67,7 +67,7 @@ pub trait Automaton: Debug {
             }
         }
 
-        let mut complete_task = self.complete_task(&state);
+        let mut complete_task = self.complete_task(&state)?;
         complete_task.execute(&mut state).await?;
 
         Ok(state)
@@ -80,11 +80,11 @@ struct NoopTask;
 #[async_trait]
 impl Task for NoopTask {
     #[cfg_attr(feature = "tracing", tracing::instrument)]
-    fn init(_state: &State) -> Box<dyn Task>
+    fn init(_state: &State) -> Result<Box<dyn Task>, Error>
     where
         Self: Sized,
     {
-        Box::new(NoopTask)
+        Ok(Box::new(NoopTask))
     }
 
     #[cfg_attr(feature = "tracing", tracing::instrument)]
