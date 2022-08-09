@@ -32,11 +32,11 @@ impl Automaton for HelloWorld {
 
 #[async_trait]
 impl Task for Hello {
-    fn init(_state: &State) -> Box<dyn Task>
+    fn init(_state: &State) -> Result<Box<dyn Task>, Error>
     where
         Self: Sized,
     {
-        Box::new(Hello)
+        Ok(Box::new(Hello))
     }
 
     async fn execute(&mut self, state: &mut State) -> Result<Transition, Error> {
@@ -47,11 +47,11 @@ impl Task for Hello {
 
 #[async_trait]
 impl Task for World {
-    fn init(_state: &State) -> Box<dyn Task>
+    fn init(_state: &State) -> Result<Box<dyn Task>, Error>
     where
         Self: Sized,
     {
-        Box::new(World)
+        Ok(Box::new(World))
     }
 
     async fn execute(&mut self, state: &mut State) -> Result<Transition, Error> {
