@@ -1,0 +1,22 @@
+---
+version: 0.2
+
+env:
+  variables:
+    CARGO_INCREMENTAL: 0
+    CARGO_PROFILE_TEST_DEBUG: 0
+
+phases:
+  install:
+    commands:
+      - apt get update -y
+      - curl https://sh.rustup.rs -sSf | sh -s -- --target x86_64-unknown-linux-musl
+  build:
+    commands:
+      - cargo build -p automatons-ingress-github --release --target x86_64-unknown-linux-musl
+
+artifacts:
+  files:
+    - target/x86_64-unknown-linux-musl/release/bootstrap
+  discard-paths: true
+  name: builds/$CODEBUILD_BUILD_NUMBER/bootstrap
