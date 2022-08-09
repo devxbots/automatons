@@ -1,0 +1,60 @@
+---
+name: Deploy to staging
+
+"on":
+  push:
+
+env:
+  CARGO_INCREMENTAL: 0
+  CARGO_PROFILE_TEST_DEBUG: 0
+
+jobs:
+  deploy:
+    name: Deploy function
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Install Zig
+        run: sudo snap install zig --classic --beta
+
+      - name: Configure AWS Credentials
+        uses: aws-actions/configure-aws-credentials@v1
+        with:
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws-region: eu-west-1
+
+      - name: Checkout code
+        uses: actions/checkout@v3
+
+      - name: Set up Rust toolchain
+        uses: actions-rs/toolchain@v1
+        with:
+          profile: minimal
+          toolchain: stable
+          override: true
+          components: clippy
+
+      - name: Install cargo-lambda
+        run: pip3 install cargo-lambda
+
+      - name: Cache build artifacts
+        uses: swatinem/rust-cache@v2.0.0
+
+      - name: Build function
+        uses: actions-rs/cargo@v1
+        with:
+          command: >
+            lambda build
+            --release
+            --output-format zip
+
+      - name: Deploy function
+        uses: actions-rs/cargo@v1
+        with:
+          command: >
+            lambda build deploy
+            --iam-role ${{ secrets.IAM_ROLE }}
+            --binary-name ${{ github.sha }}
+            --s3-bucket ${{ secrets.S3_BUCKET }}
+            automatons-ingress-github
