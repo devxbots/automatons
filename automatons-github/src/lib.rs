@@ -13,7 +13,9 @@ mod macros;
 
 pub mod event;
 pub mod resource;
+pub mod task;
 
-#[allow(dead_code)] // TODO: Remove when client is used
-#[cfg(feature = "client")]
 mod client;
+
+#[cfg(test)]
+mod testing;

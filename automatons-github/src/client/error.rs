@@ -9,6 +9,7 @@ pub enum ClientError {
     #[error("{1}")]
     Configuration(#[source] Box<dyn std::error::Error + Send + Sync>, String),
 
+    #[allow(dead_code)] // TODO: Investigate why this variant is reported as unused
     #[error("failed to find the requested resource")]
     NotFound,
 
