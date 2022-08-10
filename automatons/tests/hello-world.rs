@@ -16,29 +16,25 @@ async fn test() -> Result<(), Error> {
 // Return type
 #[derive(Debug)]
 struct Message(String);
+
 // Automaton
 #[derive(Debug)]
 struct HelloWorld;
+
 // Task
 struct Hello;
+
 // Task
 struct World;
 
 impl Automaton for HelloWorld {
     fn tasks(&self) -> Tasks {
-        vec![Box::new(Hello::init), Box::new(World::init)]
+        vec![Box::new(Hello), Box::new(World)]
     }
 }
 
 #[async_trait]
 impl Task for Hello {
-    fn init(_state: &State) -> Result<Box<dyn Task>, Error>
-    where
-        Self: Sized,
-    {
-        Ok(Box::new(Hello))
-    }
-
     async fn execute(&mut self, state: &mut State) -> Result<Transition, Error> {
         state.insert(Message(String::from("Hello")));
         Ok(Transition::Next)
@@ -47,13 +43,6 @@ impl Task for Hello {
 
 #[async_trait]
 impl Task for World {
-    fn init(_state: &State) -> Result<Box<dyn Task>, Error>
-    where
-        Self: Sized,
-    {
-        Ok(Box::new(World))
-    }
-
     async fn execute(&mut self, state: &mut State) -> Result<Transition, Error> {
         let message: &mut Message = state
             .get_mut()
