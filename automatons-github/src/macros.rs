@@ -23,6 +23,7 @@ macro_rules! id {
         #[derive(serde::Deserialize, serde::Serialize)]
         pub struct $id(u64);
 
+        #[allow(dead_code)]
         impl $id {
             /// Initializes a new id.
             #[cfg_attr(feature = "tracing", tracing::instrument)]
@@ -80,6 +81,7 @@ macro_rules! name {
         #[derive(serde::Deserialize, serde::Serialize)]
         pub struct $name(String);
 
+        #[allow(dead_code)]
         impl $name {
             /// Initializes a new name.
             #[cfg_attr(feature = "tracing", tracing::instrument)]
@@ -111,6 +113,68 @@ macro_rules! name {
             #[cfg_attr(feature = "tracing", tracing::instrument)]
             fn from(string: String) -> $name {
                 $name(string)
+            }
+        }
+    };
+}
+
+/// Generate a secret type
+///
+/// GitHub Apps have several secrets that must be configured, for example the app's private key and
+/// webhook secret. The [`secret`] macro can generate a type for these secrets that both protects
+/// the value from accidental exposure and allows the Rust compiler to enforce its type safety.
+///
+/// # Example
+///
+/// ```rust
+/// use automatons_github::secret;
+///
+/// secret!(PrivateKey);
+/// secret!(WebhookSecret);
+/// ```
+#[macro_export]
+macro_rules! secret {
+    (
+        $(#[$meta:meta])*
+        $secret:ident
+    ) => {
+        $(#[$meta])*
+        #[derive(Clone, Debug)]
+        pub struct $secret(secrecy::SecretString);
+
+        #[allow(dead_code)]
+        impl $secret {
+            /// Initializes a new secret.
+            #[cfg_attr(feature = "tracing", tracing::instrument)]
+            pub fn new(secret: &str) -> Self {
+                Self(secrecy::SecretString::new(String::from(secret)))
+            }
+
+            /// Returns the inner value of the secret.
+            #[cfg_attr(feature = "tracing", tracing::instrument)]
+            pub fn expose(&self) -> &str {
+                use secrecy::ExposeSecret;
+                self.0.expose_secret()
+            }
+        }
+
+        impl std::fmt::Display for $secret {
+            fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+                write!(f, "[REDACTED]")
+            }
+        }
+
+        impl From<&str> for $secret {
+            #[cfg_attr(feature = "tracing", tracing::instrument)]
+            fn from(secret: &str) -> $secret {
+                $secret(secrecy::SecretString::new(String::from(secret)))
+            }
+        }
+
+        impl From<String> for $secret {
+            #[cfg_attr(feature = "tracing", tracing::instrument)]
+            fn from(secret: String) -> $secret {
+                $secret(secrecy::SecretString::new(secret))
             }
         }
     };
@@ -159,5 +223,28 @@ mod tests {
     #[test]
     fn name_from_string() {
         let _name: TestName = String::from("test").into();
+    }
+
+    secret!(
+        /// Secret for tests
+        TestSecret
+    );
+
+    #[test]
+    fn secret() {
+        let secret = TestSecret::new("test");
+
+        assert_eq!("test", secret.expose());
+        assert_eq!("[REDACTED]", secret.to_string());
+    }
+
+    #[test]
+    fn secret_from_str() {
+        let _secret: TestSecret = "test".into();
+    }
+
+    #[test]
+    fn secret_from_string() {
+        let _secret: TestSecret = String::from("test").into();
     }
 }

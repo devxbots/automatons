@@ -12,7 +12,6 @@ use crate::{name, secret};
 pub use self::token::{AppScope, InstallationScope, Token, TokenFactory};
 
 mod error;
-mod macros;
 mod token;
 
 name!(
@@ -28,15 +27,6 @@ secret!(
     ///
     /// GitHub Apps have a private key that they use to sign authentication tokens.
     PrivateKey
-);
-
-secret!(
-    /// Webhook secret of the GitHub App
-    ///
-    /// The webhook secret is used by GitHub and the app to establish a trust relationship. GitHub
-    /// signs outgoing webhooks, and the app can verify the digital signature using the shared
-    /// secret.
-    WebhookSecret
 );
 
 /// Client for GitHub's REST API
@@ -124,6 +114,7 @@ impl GitHubClient {
         let status = &response.status();
 
         if !status.is_success() {
+            #[cfg(feature = "tracing")]
             tracing::error!(
                 "failed to send {} request to GitHub: {:?}",
                 &method,

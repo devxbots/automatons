@@ -177,7 +177,7 @@ impl TokenFactory {
 
         let header = Header::new(Algorithm::RS256);
         let key =
-            EncodingKey::from_rsa_pem(self.private_key.get().as_bytes()).map_err(|error| {
+            EncodingKey::from_rsa_pem(self.private_key.expose().as_bytes()).map_err(|error| {
                 ClientError::Configuration(
                     Box::new(error),
                     "failed to create encoding key for GitHub App token".into(),
