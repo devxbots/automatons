@@ -26,14 +26,6 @@ pub enum Transition {
 /// [`Transition`] with the `Complete` variant.
 #[async_trait]
 pub trait Task: Send + Sync {
-    /// Initializes a new instance of the task.
-    ///
-    /// Tasks are initialized by the engine when the previous task has finished successfully. If
-    /// they need any data, they can retrieve it from the shared state.
-    fn init(state: &State) -> Result<Box<dyn Task>, Error>
-    where
-        Self: Sized;
-
     /// Executes the task.
     ///
     /// Tasks can perform arbitrary units of work. They are executed asynchronously to avoid
