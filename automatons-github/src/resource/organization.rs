@@ -1,5 +1,6 @@
 use std::fmt::{Display, Formatter};
 
+use serde::{Deserialize, Serialize};
 use url::Url;
 
 use crate::id;
@@ -17,8 +18,7 @@ id!(
 ///
 /// Organizations enable users to collaborate and share resources with each other in a structured
 /// way. Organizations can have members, teams, repositories, and other resources.
-#[derive(Clone, Eq, PartialEq, Ord, PartialOrd, Hash, Debug)]
-#[cfg_attr(feature = "serde", derive(serde::Deserialize, serde::Serialize))]
+#[derive(Clone, Eq, PartialEq, Ord, PartialOrd, Hash, Debug, Deserialize, Serialize)]
 pub struct Organization {
     login: Login,
     id: OrganizationId,
@@ -119,7 +119,6 @@ mod tests {
     use super::Organization;
 
     #[test]
-    #[cfg(feature = "serde")]
     fn trait_deserialize() {
         let organization: Organization = serde_json::from_str(include_str!(
             "../../tests/fixtures/resource/organization.json"
@@ -130,7 +129,6 @@ mod tests {
     }
 
     #[test]
-    #[cfg(feature = "serde")]
     fn trait_display() {
         let organization: Organization = serde_json::from_str(include_str!(
             "../../tests/fixtures/resource/organization.json"

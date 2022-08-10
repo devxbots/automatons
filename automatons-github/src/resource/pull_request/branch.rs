@@ -1,5 +1,7 @@
 use std::fmt::{Display, Formatter};
 
+use serde::{Deserialize, Serialize};
+
 use crate::resource::{GitRef, GitSha, MinimalRepository};
 
 /// Pull request branch reference
@@ -7,13 +9,12 @@ use crate::resource::{GitRef, GitSha, MinimalRepository};
 /// Pull requests have a `base` branch against which they are opened, and a `head` branch that
 /// contains the changes that should be merged. The [`PullRequest`] resource references these using
 /// the [`PullRequestBranch`] data type.
-#[derive(Clone, Eq, PartialEq, Ord, PartialOrd, Hash, Debug)]
-#[cfg_attr(feature = "serde", derive(serde::Deserialize, serde::Serialize))]
+#[derive(Clone, Eq, PartialEq, Ord, PartialOrd, Hash, Debug, Deserialize, Serialize)]
 pub struct PullRequestBranch {
-    #[cfg_attr(feature = "serde", serde(rename = "ref"))]
+    #[serde(rename = "ref")]
     git_ref: GitRef,
 
-    #[cfg_attr(feature = "serde", serde(rename = "sha"))]
+    #[serde(rename = "sha")]
     git_sha: GitSha,
 
     repo: MinimalRepository,
@@ -62,7 +63,6 @@ mod test {
     "#;
 
     #[test]
-    #[cfg(feature = "serde")]
     fn trait_deserialize() {
         let branch: PullRequestBranch = serde_json::from_str(JSON).unwrap();
 

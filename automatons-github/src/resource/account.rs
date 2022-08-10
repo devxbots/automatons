@@ -1,4 +1,6 @@
 use std::fmt::{Display, Formatter};
+
+use serde::{Deserialize, Serialize};
 use url::Url;
 
 use crate::resource::NodeId;
@@ -26,8 +28,7 @@ name!(
 /// Bots represent (third-party) integrations with the platform, often driven by GitHub Apps.
 /// Organizations provide a space for users to collaborate and share resources. And user accounts
 /// represent the humans that build software on GitHub.
-#[derive(Copy, Clone, Eq, PartialEq, Ord, PartialOrd, Hash, Debug)]
-#[cfg_attr(feature = "serde", derive(serde::Deserialize, serde::Serialize))]
+#[derive(Copy, Clone, Eq, PartialEq, Ord, PartialOrd, Hash, Debug, Deserialize, Serialize)]
 pub enum AccountType {
     /// Bot account
     Bot,
@@ -45,8 +46,7 @@ pub enum AccountType {
 /// representation of three other resources: bots, users, and organizations. They provide a unified
 /// interface to information that is shared between all account types, and hide a lot of information
 /// that would unnecessarily increase payload sizes.
-#[derive(Clone, Eq, PartialEq, Ord, PartialOrd, Hash, Debug)]
-#[cfg_attr(feature = "serde", derive(serde::Deserialize, serde::Serialize))]
+#[derive(Clone, Eq, PartialEq, Ord, PartialOrd, Hash, Debug, Deserialize, Serialize)]
 pub struct Account {
     login: Login,
     id: AccountId,
@@ -65,7 +65,7 @@ pub struct Account {
     received_events_url: Url,
     site_admin: bool,
 
-    #[cfg_attr(feature = "serde", serde(rename = "type"))]
+    #[serde(rename = "type")]
     account_type: AccountType,
 }
 
@@ -175,8 +175,9 @@ impl Display for Account {
 
 #[cfg(test)]
 mod tests {
-    use crate::resource::account::AccountType;
     use url::{ParseError, Url};
+
+    use crate::resource::account::AccountType;
 
     use super::Account;
 
@@ -204,7 +205,6 @@ mod tests {
     }
 
     #[test]
-    #[cfg(feature = "serde")]
     fn trait_deserialize() {
         let json = r#"
         {

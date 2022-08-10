@@ -20,7 +20,7 @@ macro_rules! id {
     ) => {
         $(#[$meta])*
         #[derive(Copy, Clone, Eq, PartialEq, Ord, PartialOrd, Hash, Debug)]
-        #[cfg_attr(feature = "serde", derive(serde::Deserialize, serde::Serialize))]
+        #[derive(serde::Deserialize, serde::Serialize)]
         pub struct $id(u64);
 
         impl $id {
@@ -77,7 +77,7 @@ macro_rules! name {
     ) => {
         $(#[$meta])*
         #[derive(Clone, Eq, PartialEq, Ord, PartialOrd, Hash, Debug)]
-        #[cfg_attr(feature = "serde", derive(serde::Deserialize, serde::Serialize))]
+        #[derive(serde::Deserialize, serde::Serialize)]
         pub struct $name(String);
 
         impl $name {

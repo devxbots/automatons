@@ -1,6 +1,7 @@
 use std::fmt::{Display, Formatter};
 
 use chrono::{DateTime, Utc};
+use serde::{Deserialize, Serialize};
 use url::Url;
 
 use crate::id;
@@ -24,8 +25,7 @@ id!(
 /// includes.
 ///
 /// Read more: https://docs.github.com/en/rest/guides/getting-started-with-the-checks-api
-#[derive(Clone, Eq, PartialEq, Debug)]
-#[cfg_attr(feature = "serde", derive(serde::Deserialize, serde::Serialize))]
+#[derive(Clone, Eq, PartialEq, Debug, Deserialize, Serialize)]
 pub struct CheckSuite {
     id: CheckSuiteId,
     node_id: NodeId,
@@ -133,7 +133,6 @@ mod tests {
     use super::CheckSuite;
 
     #[test]
-    #[cfg(feature = "serde")]
     fn trait_deserialize() {
         let suite: CheckSuite = serde_json::from_str(include_str!(
             "../../tests/fixtures/resource/check_suite.json"
@@ -144,7 +143,6 @@ mod tests {
     }
 
     #[test]
-    #[cfg(feature = "serde")]
     fn trait_display() {
         let suite: CheckSuite = serde_json::from_str(include_str!(
             "../../tests/fixtures/resource/check_suite.json"

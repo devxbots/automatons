@@ -1,5 +1,6 @@
 use std::fmt::{Display, Formatter};
 
+use serde::{Deserialize, Serialize};
 use url::Url;
 
 use crate::resource::{RepositoryId, RepositoryName};
@@ -8,8 +9,7 @@ use crate::resource::{RepositoryId, RepositoryName};
 ///
 /// GitHub truncates data types in some API responses and webhook events to reduce the payload size.
 /// The [`MinimalRepository`] represents a `[Repository`], but contains only the most basic fields.
-#[derive(Clone, Eq, PartialEq, Ord, PartialOrd, Hash, Debug)]
-#[cfg_attr(feature = "serde", derive(serde::Deserialize, serde::Serialize))]
+#[derive(Clone, Eq, PartialEq, Ord, PartialOrd, Hash, Debug, Deserialize, Serialize)]
 pub struct MinimalRepository {
     id: RepositoryId,
     name: RepositoryName,
@@ -77,7 +77,6 @@ mod tests {
     "#;
 
     #[test]
-    #[cfg(feature = "serde")]
     fn trait_deserialize() {
         let repository: MinimalRepository = serde_json::from_str(JSON).unwrap();
 

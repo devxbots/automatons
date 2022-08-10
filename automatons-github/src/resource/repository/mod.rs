@@ -1,6 +1,7 @@
 use std::fmt::{Display, Formatter};
 
 use chrono::{DateTime, Utc};
+use serde::{Deserialize, Serialize};
 use url::Url;
 
 use crate::resource::{Account, License, NodeId, Visibility};
@@ -37,10 +38,9 @@ name!(
 ///
 /// Repositories are a core resource on GitHub, and most other resources belong to them. They are
 /// uniquely identified by the combination of their `owner` and `name`.
-#[derive(Clone, Eq, PartialEq, Ord, PartialOrd, Hash, Debug)]
-#[cfg_attr(feature = "serde", derive(serde::Deserialize, serde::Serialize))]
+#[derive(Clone, Eq, PartialEq, Ord, PartialOrd, Hash, Debug, Deserialize, Serialize)]
 pub struct Repository {
-    #[cfg_attr(feature = "serde", serde(flatten))]
+    #[serde(flatten)]
     minimal: MinimalRepository,
 
     node_id: NodeId,
@@ -566,7 +566,6 @@ mod tests {
     use super::Repository;
 
     #[test]
-    #[cfg(feature = "serde")]
     fn trait_deserialize() {
         let repository: Repository = serde_json::from_str(include_str!(
             "../../../tests/fixtures/resource/repository.json"
@@ -577,7 +576,6 @@ mod tests {
     }
 
     #[test]
-    #[cfg(feature = "serde")]
     fn trait_display() {
         let repository: Repository = serde_json::from_str(include_str!(
             "../../../tests/fixtures/resource/repository.json"

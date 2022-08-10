@@ -1,13 +1,14 @@
 use std::fmt::{Display, Formatter};
 
+use serde::{Deserialize, Serialize};
+
 /// Check run conclusion
 ///
 /// When a check run finishes, its conclusion indicates the success or failure of the check run to
 /// the user. Branch protection rules can be created to require a successful conclusion before code
 /// can be merged into a branch.
-#[derive(Copy, Clone, Eq, PartialEq, Ord, PartialOrd, Hash, Debug)]
-#[cfg_attr(feature = "serde", derive(serde::Deserialize, serde::Serialize))]
-#[cfg_attr(feature = "serde", serde(rename_all = "snake_case"))]
+#[derive(Copy, Clone, Eq, PartialEq, Ord, PartialOrd, Hash, Debug, Deserialize, Serialize)]
+#[serde(rename_all = "snake_case")]
 pub enum CheckRunConclusion {
     /// Check run finished successfully
     Success,
@@ -56,7 +57,6 @@ mod tests {
     use super::CheckRunConclusion;
 
     #[test]
-    #[cfg(feature = "serde")]
     fn trait_deserialize() {
         let conclusion: CheckRunConclusion = serde_json::from_str(r#""action_required""#).unwrap();
 

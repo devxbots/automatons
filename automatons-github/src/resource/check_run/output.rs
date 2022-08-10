@@ -1,5 +1,6 @@
 use std::fmt::{Display, Formatter};
 
+use serde::{Deserialize, Serialize};
 use url::Url;
 
 use crate::name;
@@ -19,8 +20,7 @@ name!(
 /// Integrations can provide additional context for a completed check run in the check run's output.
 /// The output has a title and a summary, which supports Markdown. It can optionally have a text
 /// with more details, and annotations.
-#[derive(Clone, Eq, PartialEq, Ord, PartialOrd, Hash, Debug)]
-#[cfg_attr(feature = "serde", derive(serde::Deserialize, serde::Serialize))]
+#[derive(Clone, Eq, PartialEq, Ord, PartialOrd, Hash, Debug, Deserialize, Serialize)]
 pub struct CheckRunOutput {
     title: CheckRunOutputTitle,
     summary: CheckRunOutputSummary,
@@ -84,7 +84,6 @@ mod tests {
     "#;
 
     #[test]
-    #[cfg(feature = "serde")]
     fn trait_deserialize() {
         let output: CheckRunOutput = serde_json::from_str(JSON).unwrap();
 

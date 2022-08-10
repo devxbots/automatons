@@ -1,13 +1,14 @@
 use std::fmt::{Display, Formatter};
 
+use serde::{Deserialize, Serialize};
+
 /// Check run status
 ///
 /// Check runs can be in one of three states. When a check run is created, the status is `queued`.
 /// Once its dependencies are ready and the execution starts, the status changes to `in progress`.
 /// Finally, the check run is finished and the status is set to `completed`.
-#[derive(Copy, Clone, Eq, PartialEq, Ord, PartialOrd, Hash, Debug)]
-#[cfg_attr(feature = "serde", derive(serde::Deserialize, serde::Serialize))]
-#[cfg_attr(feature = "serde", serde(rename_all = "snake_case"))]
+#[derive(Copy, Clone, Eq, PartialEq, Ord, PartialOrd, Hash, Debug, Deserialize, Serialize)]
+#[serde(rename_all = "snake_case")]
 pub enum CheckRunStatus {
     /// Queued state
     Queued,
@@ -36,7 +37,6 @@ mod tests {
     use super::CheckRunStatus;
 
     #[test]
-    #[cfg(feature = "serde")]
     fn trait_deserialize() {
         let status: CheckRunStatus = serde_json::from_str(r#""in_progress""#).unwrap();
 
