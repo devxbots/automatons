@@ -1,5 +1,6 @@
 use std::fmt::{Display, Formatter};
 
+use serde::{Deserialize, Serialize};
 use url::Url;
 
 use crate::name;
@@ -33,8 +34,7 @@ name!(
 /// GitHub tries to detect the license of a project automatically. It checks for a license file and
 /// matches that against a known list of licenses, or reads the license fields in the package's
 /// manifest, e.g. in `package.json` or `Cargo.toml`.
-#[derive(Clone, Eq, PartialEq, Ord, PartialOrd, Hash, Debug)]
-#[cfg_attr(feature = "serde", derive(serde::Deserialize, serde::Serialize))]
+#[derive(Clone, Eq, PartialEq, Ord, PartialOrd, Hash, Debug, Deserialize, Serialize)]
 pub struct License {
     key: LicenseKey,
     name: LicenseName,
@@ -83,13 +83,13 @@ impl Display for License {
 
 #[cfg(test)]
 mod tests {
-    use crate::resource::NodeId;
     use url::Url;
+
+    use crate::resource::NodeId;
 
     use super::{License, LicenseKey, LicenseName, SpdxId};
 
     #[test]
-    #[cfg(feature = "serde")]
     fn trait_deserialize() {
         let license: License =
             serde_json::from_str(include_str!("../../tests/fixtures/resource/license.json"))

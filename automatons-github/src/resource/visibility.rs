@@ -1,5 +1,7 @@
 use std::fmt::{Display, Formatter};
 
+use serde::{Deserialize, Serialize};
+
 /// Visibility of a resource
 ///
 /// Some resources on GitHub can be made available to different groups of people. Most prominently,
@@ -7,9 +9,8 @@ use std::fmt::{Display, Formatter};
 /// On [github.com](https://github.com), resources can either be `public` or `private`. On hosted
 /// GitHub Enterprise servers, `internal` resources can only be access by members of the same
 /// GitHub organization.
-#[derive(Copy, Clone, Eq, PartialEq, Ord, PartialOrd, Hash, Debug)]
-#[cfg_attr(feature = "serde", derive(serde::Deserialize, serde::Serialize))]
-#[cfg_attr(feature = "serde", serde(rename_all = "snake_case"))]
+#[derive(Copy, Clone, Eq, PartialEq, Ord, PartialOrd, Hash, Debug, Deserialize, Serialize)]
+#[serde(rename_all = "snake_case")]
 pub enum Visibility {
     /// Internal visibility
     ///
@@ -44,7 +45,6 @@ mod tests {
     use super::Visibility;
 
     #[test]
-    #[cfg(feature = "serde")]
     fn trait_deserialize() {
         let visibility: Visibility = serde_json::from_str(r#""internal""#).unwrap();
 

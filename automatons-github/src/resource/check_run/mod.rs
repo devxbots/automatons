@@ -1,8 +1,7 @@
 use std::fmt::{Display, Formatter};
 
 use chrono::{DateTime, Utc};
-#[cfg(feature = "serde")]
-use serde::{Deserialize, Deserializer};
+use serde::{Deserialize, Deserializer, Serialize};
 use url::Url;
 
 use crate::resource::{App, CheckSuite, GitSha, NodeId, PullRequest};
@@ -35,8 +34,7 @@ name!(
 ///
 /// A check run is an individual test that is part of a check suite. Each run includes a status and
 /// conclusion.
-#[derive(Clone, Eq, PartialEq, Debug)]
-#[cfg_attr(feature = "serde", derive(serde::Deserialize, serde::Serialize))]
+#[derive(Clone, Eq, PartialEq, Debug, Deserialize, Serialize)]
 pub struct CheckRun {
     id: CheckRunId,
     node_id: NodeId,
@@ -54,7 +52,7 @@ pub struct CheckRun {
     app: App,
     pull_requests: Vec<PullRequest>,
 
-    #[cfg_attr(feature = "serde", serde(deserialize_with = "deserialize_output"))]
+    #[serde(deserialize_with = "deserialize_output")]
     output: Option<CheckRunOutput>,
 }
 
@@ -162,7 +160,6 @@ impl Display for CheckRun {
     }
 }
 
-#[cfg(feature = "serde")]
 fn deserialize_output<'de, D>(deserializer: D) -> Result<Option<CheckRunOutput>, D::Error>
 where
     D: Deserializer<'de>,
@@ -190,7 +187,6 @@ mod tests {
     use super::CheckRun;
 
     #[test]
-    #[cfg(feature = "serde")]
     fn trait_deserialize() {
         let check_run: CheckRun = serde_json::from_str(include_str!(
             "../../../tests/fixtures/resource/check_run.json"

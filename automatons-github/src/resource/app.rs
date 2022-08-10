@@ -2,6 +2,7 @@ use std::collections::HashMap;
 use std::fmt::{Display, Formatter};
 
 use chrono::{DateTime, Utc};
+use serde::{Deserialize, Serialize};
 use url::Url;
 
 use crate::resource::{Account, NodeId};
@@ -35,8 +36,7 @@ name!(
 /// Third-parties can create integrations with the GitHub platform by creating a GitHub App. Apps
 /// have their own identify and authentication, and can request granular permissions and access to
 /// events. Every [`App`] is owned by an [`Account`].
-#[derive(Clone, Eq, PartialEq, Debug)]
-#[cfg_attr(feature = "serde", derive(serde::Deserialize, serde::Serialize))]
+#[derive(Clone, Eq, PartialEq, Debug, Deserialize, Serialize)]
 pub struct App {
     id: AppId,
     node_id: NodeId,
@@ -137,7 +137,6 @@ mod tests {
     use super::App;
 
     #[test]
-    #[cfg(feature = "serde")]
     fn trait_deserialize() {
         let app: App =
             serde_json::from_str(include_str!("../../tests/fixtures/resource/app.json")).unwrap();
@@ -146,7 +145,6 @@ mod tests {
     }
 
     #[test]
-    #[cfg(feature = "serde")]
     fn trait_display() {
         let app: App =
             serde_json::from_str(include_str!("../../tests/fixtures/resource/app.json")).unwrap();

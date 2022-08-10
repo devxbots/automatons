@@ -1,5 +1,6 @@
 use std::fmt::{Display, Formatter};
 
+use serde::{Deserialize, Serialize};
 use url::Url;
 
 use crate::id;
@@ -29,8 +30,7 @@ id!(
 /// Pull requests are a feature of GitHub to merge two branches. Users can create, review, and merge
 /// pull requests using GitHub's platform. Each pull request has a unique `id`, a human-readable
 /// `number`, and references to the two branches.
-#[derive(Clone, Eq, PartialEq, Ord, PartialOrd, Hash, Debug)]
-#[cfg_attr(feature = "serde", derive(serde::Deserialize, serde::Serialize))]
+#[derive(Clone, Eq, PartialEq, Ord, PartialOrd, Hash, Debug, Deserialize, Serialize)]
 pub struct PullRequest {
     id: PullRequestId,
     number: PullRequestNumber,
@@ -82,7 +82,6 @@ mod tests {
     use super::PullRequest;
 
     #[test]
-    #[cfg(feature = "serde")]
     fn trait_deserialize() {
         let pr: PullRequest = serde_json::from_str(include_str!(
             "../../../tests/fixtures/resource/pull_request.json"
@@ -93,7 +92,6 @@ mod tests {
     }
 
     #[test]
-    #[cfg(feature = "serde")]
     fn trait_display() {
         let pr: PullRequest = serde_json::from_str(include_str!(
             "../../../tests/fixtures/resource/pull_request.json"

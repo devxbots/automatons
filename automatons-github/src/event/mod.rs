@@ -9,6 +9,8 @@
 
 use std::fmt::{Display, Formatter};
 
+use serde::{Deserialize, Serialize};
+
 pub use self::check_run::{CheckRunAction, CheckRunEvent};
 
 mod check_run;
@@ -24,9 +26,8 @@ mod check_run;
 /// Read more: https://docs.github.com/en/developers/webhooks-and-events/webhooks/about-webhooks
 ///
 /// The webhook payloads are inside a [`Box`], since their sizes vary greatly.
-#[derive(Clone, Eq, PartialEq, Debug)]
-#[cfg_attr(feature = "serde", derive(serde::Deserialize, serde::Serialize))]
-#[cfg_attr(feature = "serde", serde(untagged))]
+#[derive(Clone, Eq, PartialEq, Debug, Deserialize, Serialize)]
+#[serde(untagged)]
 pub enum GitHubEvent {
     /// Check run event
     CheckRun(Box<CheckRunEvent>),
@@ -57,7 +58,6 @@ mod tests {
     use super::GitHubEvent;
 
     #[test]
-    #[cfg(feature = "serde")]
     fn trait_deserialize_check_run() {
         let github_event: GitHubEvent = serde_json::from_str(include_str!(
             "../../tests/fixtures/event/check_run.completed.json"

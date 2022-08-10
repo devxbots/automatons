@@ -1,13 +1,14 @@
 use std::fmt::{Display, Formatter};
 
+use serde::{Deserialize, Serialize};
+
 use crate::resource::{Account, CheckRun, Installation, Organization, Repository};
 
 /// Check run action
 ///
 /// The type of activity that has occurred.
-#[derive(Copy, Clone, Eq, PartialEq, Ord, PartialOrd, Hash, Debug)]
-#[cfg_attr(feature = "serde", derive(serde::Deserialize, serde::Serialize))]
-#[cfg_attr(feature = "serde", serde(rename_all = "snake_case"))]
+#[derive(Copy, Clone, Eq, PartialEq, Ord, PartialOrd, Hash, Debug, Deserialize, Serialize)]
+#[serde(rename_all = "snake_case")]
 pub enum CheckRunAction {
     /// A new check run was created.
     Created,
@@ -28,8 +29,7 @@ pub enum CheckRunAction {
 /// repository that the check run was created in. If the webhook was configured for an organization,
 /// or if the repository is owned by one, the organization is included in the payload. If the event
 /// is sent to a GitHub App, the payload contains the installation.
-#[derive(Clone, Eq, PartialEq, Debug)]
-#[cfg_attr(feature = "serde", derive(serde::Deserialize, serde::Serialize))]
+#[derive(Clone, Eq, PartialEq, Debug, Deserialize, Serialize)]
 pub struct CheckRunEvent {
     action: CheckRunAction,
     check_run: CheckRun,
@@ -101,7 +101,6 @@ mod tests {
     use super::{CheckRunAction, CheckRunEvent};
 
     #[test]
-    #[cfg(feature = "serde")]
     fn trait_deserialize() {
         let check_run_event: CheckRunEvent = serde_json::from_str(include_str!(
             "../../tests/fixtures/event/check_run.completed.json"
@@ -115,7 +114,6 @@ mod tests {
     }
 
     #[test]
-    #[cfg(feature = "serde")]
     fn trait_display() {
         let check_run_event: CheckRunEvent = serde_json::from_str(include_str!(
             "../../tests/fixtures/event/check_run.completed.json"
