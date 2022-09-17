@@ -40,6 +40,7 @@ pub struct GitHubClient {
     installation_id: InstallationId,
 }
 
+#[allow(dead_code)] // TODO: Remove when remaining tasks have been migrated from `github-parts`
 impl GitHubClient {
     #[cfg_attr(feature = "tracing", tracing::instrument)]
     pub fn new(
