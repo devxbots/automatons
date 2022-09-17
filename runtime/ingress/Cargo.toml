@@ -1,9 +1,9 @@
 [package]
-name = "automatons-ingress-github"
+name = "automatons-aws-ingress"
 version = "0.0.0"
 edition = "2021"
 
-description = "Ingress for events from GitHub"
+description = "Ingress gateway for the AWS runtime"
 repository = "https://github.com/devxbots/automatons"
 license = "MIT OR Apache-2.0"
 
@@ -15,12 +15,18 @@ keywords = [
     "github-app",
 ]
 
-# See more keys and their definitions at
-# https://doc.rust-lang.org/cargo/reference/manifest.html
+# We don't distribute the AWS runtime while it is under active development. Once
+# its features are stabilized, we can consider how to package and distribute it
+# to users.
+publish = false
+
+[[bin]]
+name = "ingress"
 
 [dependencies]
-lambda_http = { version = "0.6.0", default-features = false, features = ["apigw_rest"] }
-lambda_runtime = "0.6.0"
-tokio = { version = "1.20.1", features = ["macros"] }
-tracing = { version = "0.1.36", features = ["log"] }
-tracing-subscriber = { version = "0.3.15", default-features = false, features = ["fmt"] }
+axum = "0.6.0-rc.2"
+hyper = "0.14.20"
+tokio = { version = "1.21.1", features = ["macros", "rt-multi-thread"] }
+
+[dev-dependencies]
+reqwest = "0.11.11"
