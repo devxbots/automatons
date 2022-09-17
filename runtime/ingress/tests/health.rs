@@ -2,14 +2,19 @@ use std::net::{SocketAddr, TcpListener};
 
 use reqwest::Client;
 
-use automatons_aws_ingress::app;
+use automatons_aws_ingress::{app, AppState, GitHubWebhookSecret};
 
 #[tokio::test]
 async fn health_returns_ok() {
     let listener = TcpListener::bind("0.0.0.0:0".parse::<SocketAddr>().unwrap()).unwrap();
     let addr = listener.local_addr().unwrap();
 
-    tokio::spawn(app(listener));
+    tokio::spawn(app(
+        AppState {
+            github_webhook_secret: GitHubWebhookSecret::from("secret"),
+        },
+        listener,
+    ));
 
     let response = Client::new()
         .get(format!("http://{}/_health", addr))
