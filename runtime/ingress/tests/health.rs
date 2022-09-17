@@ -3,6 +3,7 @@ use std::net::{SocketAddr, TcpListener};
 use reqwest::Client;
 
 use automatons_aws_ingress::{app, AppState, GitHubWebhookSecret};
+use aws_config::SdkConfig;
 
 #[tokio::test]
 async fn health_returns_ok() {
@@ -11,6 +12,8 @@ async fn health_returns_ok() {
 
     tokio::spawn(app(
         AppState {
+            aws_configuration: SdkConfig::builder().build(),
+            aws_event_queue_url: "aws_event_queue".into(),
             github_webhook_secret: GitHubWebhookSecret::from("secret"),
         },
         listener,

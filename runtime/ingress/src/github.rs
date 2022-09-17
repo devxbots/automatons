@@ -7,6 +7,7 @@ use secrecy::ExposeSecret;
 use sha2::Sha256;
 
 use automatons_github::event::GitHubEvent;
+use aws_sdk_sqs::{Client, Config};
 
 use crate::error::{Error, Result};
 use crate::{AppState, GitHubWebhookSecret};
@@ -22,9 +23,19 @@ pub async fn github_webhook_handler(
     verify_signature(&body, &signature, &app_state.github_webhook_secret)?;
 
     let event_type = get_event(&headers)?;
-    let _event = deserialize_event(&event_type, &body)?;
+    let event = deserialize_event(&event_type, &body)?;
 
-    // TODO: Push event into queue for workers
+    let serialized_event =
+        serde_json::to_string(&event).context("failed to serialize GitHub event")?;
+
+    Client::from_conf(Config::from(&app_state.aws_configuration))
+        .send_message()
+        .queue_url(app_state.aws_event_queue_url)
+        .message_body(serialized_event)
+        .send()
+        .await
+        .unwrap();
+    // .context("failed to queue GitHub event")?;
 
     Ok(StatusCode::CREATED)
 }

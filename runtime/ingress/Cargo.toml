@@ -26,6 +26,8 @@ name = "ingress"
 [dependencies]
 anyhow = "1.0.65"
 automatons-github = { version = "0.1.0", path = "../../integrations/github" }
+aws-config = "0.48.0"
+aws-sdk-sqs = "0.18.0"
 axum = "0.6.0-rc.2"
 hex = "0.4.3"
 hmac = "0.12.1"
@@ -37,4 +39,7 @@ thiserror = "1.0.35"
 tokio = { version = "1.21.1", features = ["macros", "rt-multi-thread"] }
 
 [dev-dependencies]
+aws-smithy-http = "0.48.0"
+aws-types = { version = "0.48.0", features = ["hardcoded-credentials"] }
+http = "0.2.8"
 reqwest = "0.11.11"
