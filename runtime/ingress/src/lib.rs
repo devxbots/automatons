@@ -5,6 +5,7 @@ use axum::routing::{get, post};
 use axum::Router;
 
 use automatons_github::secret;
+use aws_config::SdkConfig as AwsConfig;
 
 mod error;
 mod github;
@@ -14,6 +15,8 @@ secret!(GitHubWebhookSecret);
 
 #[derive(Clone, Debug)]
 pub struct AppState {
+    pub aws_configuration: AwsConfig,
+    pub aws_event_queue_url: String,
     pub github_webhook_secret: GitHubWebhookSecret,
 }
 

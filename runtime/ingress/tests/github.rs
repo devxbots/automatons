@@ -2,20 +2,49 @@ use std::fs::read;
 use std::net::{SocketAddr, TcpListener};
 
 use reqwest::Client;
+use tokio::task::JoinHandle;
 
 use automatons_aws_ingress::{app, AppState, GitHubWebhookSecret};
+use aws_config::SdkConfig;
+use aws_smithy_http::endpoint::Endpoint;
+use aws_types::{credentials::SharedCredentialsProvider, region::Region, Credentials};
+use http::Uri;
 
-#[tokio::test]
-async fn webhook_accepts_valid_signature() {
+const QUEUE_URL: &str = "http://localhost:4566/000000000000/automatons-event-queue";
+
+fn aws_configuration() -> SdkConfig {
+    SdkConfig::builder()
+        .credentials_provider(SharedCredentialsProvider::new(Credentials::from_keys(
+            "aws_access_key_id",
+            "aws_secret_access_key",
+            None,
+        )))
+        .endpoint_resolver(Endpoint::immutable(Uri::from_static(
+            "http://localhost:4566/",
+        )))
+        .region(Region::new("eu-central-1"))
+        .build()
+}
+
+fn spawn_app() -> (JoinHandle<anyhow::Result<()>>, SocketAddr) {
     let listener = TcpListener::bind("0.0.0.0:0".parse::<SocketAddr>().unwrap()).unwrap();
     let addr = listener.local_addr().unwrap();
 
-    tokio::spawn(app(
+    let handle = tokio::spawn(app(
         AppState {
+            aws_configuration: aws_configuration(),
+            aws_event_queue_url: QUEUE_URL.into(),
             github_webhook_secret: GitHubWebhookSecret::from("secret"),
         },
         listener,
     ));
+
+    (handle, addr)
+}
+
+#[tokio::test]
+async fn webhook_queues_event() {
+    let (_handle, addr) = spawn_app();
 
     let fixture = format!(
         "{}/tests/fixtures/check_run.created.json",
@@ -36,19 +65,22 @@ async fn webhook_accepts_valid_signature() {
         .expect("failed to send request to test server");
 
     assert_eq!(response.status(), 201);
+
+    let messages = aws_sdk_sqs::Client::new(&aws_configuration())
+        .receive_message()
+        .queue_url(QUEUE_URL)
+        .send()
+        .await
+        .expect("failed to receive messages")
+        .messages
+        .expect("failed to find a message in response");
+
+    assert_eq!(1, messages.len());
 }
 
 #[tokio::test]
-async fn webhook_requires_signature() {
-    let listener = TcpListener::bind("0.0.0.0:0".parse::<SocketAddr>().unwrap()).unwrap();
-    let addr = listener.local_addr().unwrap();
-
-    tokio::spawn(app(
-        AppState {
-            github_webhook_secret: GitHubWebhookSecret::from("secret"),
-        },
-        listener,
-    ));
+async fn webhook_rejects_missing_signature() {
+    let (_handle, addr) = spawn_app();
 
     let fixture = format!(
         "{}/tests/fixtures/check_run.created.json",
@@ -74,15 +106,7 @@ async fn webhook_requires_signature() {
 
 #[tokio::test]
 async fn webhook_rejects_invalid_signature() {
-    let listener = TcpListener::bind("0.0.0.0:0".parse::<SocketAddr>().unwrap()).unwrap();
-    let addr = listener.local_addr().unwrap();
-
-    tokio::spawn(app(
-        AppState {
-            github_webhook_secret: GitHubWebhookSecret::from("secret"),
-        },
-        listener,
-    ));
+    let (_handle, addr) = spawn_app();
 
     let fixture = format!(
         "{}/tests/fixtures/check_run.created.json",
