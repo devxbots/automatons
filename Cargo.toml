@@ -1,6 +1,6 @@
 [workspace]
 members = [
     "automatons",
-    "automatons-github",
-    "automatons-ingress-github",
+    "integrations/github",
+    "runtime/ingress",
 ]
