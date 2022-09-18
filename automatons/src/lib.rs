@@ -10,24 +10,12 @@ mod error;
 mod state;
 mod task;
 
-/// List of tasks
-///
-/// Automatons execute a series of tasks. The tasks are provided as a list of constructor functions
-/// so that the automaton can initialize the tasks one by one.
-pub type Tasks = Vec<Box<dyn Task + Send + Sync>>;
-
 /// Trait for automatons
 ///
 /// Automatons execute a series of tasks. This trait defines the behavior that automatons must
 /// implement so that they can be executed inside a runtime.
 #[async_trait]
 pub trait Automaton: Debug {
-    /// Returns the tasks of the automaton.
-    ///
-    /// Automatons execute a series of tasks. They provide the engine a list of constructor
-    /// functions. This enables the engine to initialize each step at the right time.
-    fn tasks(&self) -> Tasks;
-
     /// Returns the initial state for the execution.
     ///
     /// Automatons can customize the state that is passed to the tasks. This can be useful to inject
@@ -35,6 +23,12 @@ pub trait Automaton: Debug {
     fn initial_state(&self) -> State {
         State::new()
     }
+
+    /// Returns the first task in the automaton.
+    ///
+    /// The initial task defines the entry point of the automaton. This task will be executed with
+    /// the initial state.
+    fn initial_task(&self) -> Box<dyn Task>;
 
     /// Returns the task that is called after the completed transition.
     ///
@@ -56,12 +50,11 @@ pub trait Automaton: Debug {
     #[cfg_attr(feature = "tracing", tracing::instrument)]
     async fn execute(&self) -> Result<State, Error> {
         let mut state = self.initial_state();
+        let mut task = self.initial_task();
 
-        for task in self.tasks().iter_mut() {
-            let transition = task.execute(&mut state).await?;
-
-            match transition {
-                Transition::Next => continue,
+        loop {
+            task = match task.execute(&mut state).await? {
+                Transition::Next(task) => task,
                 Transition::Complete => break,
             }
         }

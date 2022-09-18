@@ -1,7 +1,7 @@
 use anyhow::Context;
 use async_trait::async_trait;
 
-use automatons::{Automaton, Error, State, Task, Tasks, Transition};
+use automatons::{Automaton, Error, State, Task, Transition};
 
 #[tokio::test]
 async fn test() -> Result<(), Error> {
@@ -28,8 +28,8 @@ struct Hello;
 struct World;
 
 impl Automaton for HelloWorld {
-    fn tasks(&self) -> Tasks {
-        vec![Box::new(Hello), Box::new(World)]
+    fn initial_task(&self) -> Box<dyn Task> {
+        Box::new(Hello)
     }
 }
 
@@ -37,7 +37,7 @@ impl Automaton for HelloWorld {
 impl Task for Hello {
     async fn execute(&mut self, state: &mut State) -> Result<Transition, Error> {
         state.insert(Message(String::from("Hello")));
-        Ok(Transition::Next)
+        Ok(Transition::Next(Box::new(World)))
     }
 }
 
@@ -50,6 +50,6 @@ impl Task for World {
 
         message.0.push_str(", World!");
 
-        Ok(Transition::Next)
+        Ok(Transition::Complete)
     }
 }
