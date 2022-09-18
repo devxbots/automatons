@@ -80,21 +80,6 @@ jobs:
       - name: Cache build artifacts
         uses: swatinem/rust-cache@v2.0.0
 
-      - name: Install LocalStack
-        run: |
-          pip install --upgrade pyopenssl
-          pip install localstack awscli-local
-          docker pull localstack/localstack
-
-      - name: Start LocalStack
-        run: |
-          localstack start -d
-          localstack wait -t 30
-
-      - name: Create SQS queue
-        run: |
-          awslocal sqs create-queue --region eu-central-1 --queue-name automatons-event-queue
-
       - name: Determine whether to measure test coverage
         id: coverage
         run: |
