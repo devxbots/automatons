@@ -10,7 +10,8 @@ use reqwest::Client;
 use secrecy::{ExposeSecret, SecretString};
 use serde::{Deserialize, Serialize};
 
-use crate::client::error::ClientError;
+use automatons::Error;
+
 use crate::client::{GitHubHost, PrivateKey};
 use crate::resource::{AppId, InstallationId};
 
@@ -87,7 +88,7 @@ impl TokenFactory {
     }
 
     #[cfg_attr(feature = "tracing", tracing::instrument)]
-    pub fn app(&self) -> Result<Token<AppScope>, ClientError> {
+    pub fn app(&self) -> Result<Token<AppScope>, Error> {
         let now = Utc::now();
 
         {
@@ -116,7 +117,7 @@ impl TokenFactory {
     pub async fn installation(
         &self,
         installation_id: InstallationId,
-    ) -> Result<Token<InstallationScope>, ClientError> {
+    ) -> Result<Token<InstallationScope>, Error> {
         let now = Utc::now();
 
         {
@@ -142,7 +143,11 @@ impl TokenFactory {
             .send()
             .await?;
 
-        let access_token_response: AccessTokensResponse = response.json().await?;
+        let access_token_response: AccessTokensResponse = response
+            .json()
+            .await
+            .map_err(|error| Error::Serialization(error.to_string()))?;
+
         let token = Token {
             scope: PhantomData,
             token: SecretString::new(access_token_response.token),
@@ -158,7 +163,7 @@ impl TokenFactory {
     }
 
     #[cfg_attr(feature = "tracing", tracing::instrument)]
-    fn generate_jwt(&self) -> Result<String, ClientError> {
+    fn generate_jwt(&self) -> Result<String, Error> {
         let now = Utc::now();
 
         let issued_at = now
@@ -177,11 +182,8 @@ impl TokenFactory {
 
         let header = Header::new(Algorithm::RS256);
         let key =
-            EncodingKey::from_rsa_pem(self.private_key.expose().as_bytes()).map_err(|error| {
-                ClientError::Configuration(
-                    Box::new(error),
-                    "failed to create encoding key for GitHub App token".into(),
-                )
+            EncodingKey::from_rsa_pem(self.private_key.expose().as_bytes()).map_err(|_error| {
+                Error::Configuration("failed to create encoding key for GitHub App token".into())
             })?;
 
         Ok(encode(&header, &claims, &key).context("failed to encode JWT for GitHub App token")?)
@@ -207,10 +209,9 @@ mod tests {
     use std::sync::Arc;
 
     use chrono::{Duration, Utc};
+    use mockito::mock;
     use parking_lot::Mutex;
     use secrecy::SecretString;
-
-    use mockito::mock;
 
     use crate::client::PrivateKey;
     use crate::resource::{AppId, InstallationId};
