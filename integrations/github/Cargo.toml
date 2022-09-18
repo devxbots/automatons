@@ -19,19 +19,19 @@ keywords = [
 # https://doc.rust-lang.org/cargo/reference/manifest.html
 
 [dependencies]
-anyhow = { version = "1.0.60" }
-async-trait = "0.1.57"
-automatons = { path = "../../automatons", version = "0.1.0" }
-chrono = { version = "0.4.19", features = ["serde"] }
-jsonwebtoken = { version = "8.1.1" }
-parking_lot = { version = "0.12.1" }
-reqwest = { version = "0.11.11", features = ["json"] }
-secrecy = { version = "0.8.0" }
-serde = { version = "1.0.141", features = ["derive"] }
-serde_json = { version = "1.0.83" }
-thiserror = { version = "1.0.32" }
-tracing = { version = "0.1.36", optional = true }
-url = { version = "2.2.2", features = ["serde"] }
+anyhow = { version = "1" }
+async-trait = "0.1"
+automatons = { path = "../../automatons", version = "0.1" }
+chrono = { version = "0.4", features = ["serde"] }
+jsonwebtoken = { version = "8" }
+parking_lot = { version = "0.12" }
+reqwest = { version = "0.11", features = ["json"] }
+secrecy = { version = "0.8" }
+serde = { version = "1", features = ["derive"] }
+serde_json = { version = "1" }
+thiserror = { version = "1" }
+tracing = { version = "0.1", optional = true }
+url = { version = "2", features = ["serde"] }
 
 [dev-dependencies]
 mockito = "0.31.0"
