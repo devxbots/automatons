@@ -5,13 +5,13 @@ use serde::de::DeserializeOwned;
 use serde::Serialize;
 use serde_json::Value;
 
-use crate::client::error::ClientError;
+use automatons::Error;
+
 use crate::resource::{AppId, InstallationId};
 use crate::{name, secret};
 
 pub use self::token::{AppScope, InstallationScope, Token, TokenFactory};
 
-mod error;
 mod token;
 
 name!(
@@ -59,7 +59,7 @@ impl GitHubClient {
     }
 
     #[cfg_attr(feature = "tracing", tracing::instrument)]
-    pub async fn get<T>(&self, endpoint: &str) -> Result<T, ClientError>
+    pub async fn get<T>(&self, endpoint: &str) -> Result<T, Error>
     where
         T: DeserializeOwned,
     {
@@ -70,11 +70,7 @@ impl GitHubClient {
     }
 
     #[cfg_attr(feature = "tracing", tracing::instrument(skip(body)))]
-    pub async fn post<T>(
-        &self,
-        endpoint: &str,
-        body: Option<impl Serialize>,
-    ) -> Result<T, ClientError>
+    pub async fn post<T>(&self, endpoint: &str, body: Option<impl Serialize>) -> Result<T, Error>
     where
         T: DeserializeOwned,
     {
@@ -82,11 +78,7 @@ impl GitHubClient {
     }
 
     #[cfg_attr(feature = "tracing", tracing::instrument(skip(body)))]
-    pub async fn patch<T>(
-        &self,
-        endpoint: &str,
-        body: Option<impl Serialize>,
-    ) -> Result<T, ClientError>
+    pub async fn patch<T>(&self, endpoint: &str, body: Option<impl Serialize>) -> Result<T, Error>
     where
         T: DeserializeOwned,
     {
@@ -99,7 +91,7 @@ impl GitHubClient {
         method: Method,
         endpoint: &str,
         body: Option<impl Serialize>,
-    ) -> Result<T, ClientError>
+    ) -> Result<T, Error>
     where
         T: DeserializeOwned,
     {
@@ -123,10 +115,10 @@ impl GitHubClient {
             );
 
             return if status == &404 {
-                Err(ClientError::NotFound)
+                Err(Error::NotFound(String::from(endpoint)))
             } else {
                 // TODO: Gracefully return status instead of error
-                Err(ClientError::Unknown(anyhow!(
+                Err(Error::Unknown(anyhow!(
                     "failed to send {} request to GitHub",
                     &method
                 )))
@@ -144,7 +136,7 @@ impl GitHubClient {
         method: Method,
         endpoint: &str,
         key: &str,
-    ) -> Result<Vec<T>, ClientError>
+    ) -> Result<Vec<T>, Error>
     where
         T: DeserializeOwned,
     {
@@ -178,12 +170,11 @@ impl GitHubClient {
     }
 
     #[cfg_attr(feature = "tracing", tracing::instrument)]
-    async fn client(&self, method: Method, url: &str) -> Result<RequestBuilder, ClientError> {
+    async fn client(&self, method: Method, url: &str) -> Result<RequestBuilder, Error> {
         let token = self
             .token_factory
             .installation(self.installation_id)
-            .await
-            .context("failed to get authentication token from factory")?;
+            .await?;
 
         let client = Client::new()
             .request(method, url)
@@ -195,7 +186,7 @@ impl GitHubClient {
     }
 
     #[cfg_attr(feature = "tracing", tracing::instrument)]
-    fn get_next_url(&self, header: Option<&HeaderValue>) -> Result<Option<String>, ClientError> {
+    fn get_next_url(&self, header: Option<&HeaderValue>) -> Result<Option<String>, Error> {
         let header = match header {
             Some(header) => header,
             None => return Ok(None),
@@ -227,10 +218,9 @@ impl GitHubClient {
 
 #[cfg(test)]
 mod tests {
+    use mockito::mock;
     use reqwest::header::HeaderValue;
     use reqwest::Method;
-
-    use mockito::mock;
 
     use crate::client::PrivateKey;
     use crate::resource::{AppId, InstallationId, Repository};

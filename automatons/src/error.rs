@@ -30,6 +30,19 @@ use thiserror::Error;
 /// thiserror: https://crates.io/crates/thiserror
 #[derive(Debug, Error)]
 pub enum Error {
+    #[error("{0}")]
+    Configuration(String),
+
+    #[cfg(feature = "reqwest")]
+    #[error(transparent)]
+    Request(#[from] reqwest::Error),
+
+    #[error("failed to find resource at {0}")]
+    NotFound(String),
+
+    #[error("{0}")]
+    Serialization(String),
+
     #[error(transparent)]
     Unknown(#[from] anyhow::Error),
 }
