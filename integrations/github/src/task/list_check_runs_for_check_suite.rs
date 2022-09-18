@@ -1,8 +1,7 @@
 use anyhow::Context;
-use async_trait::async_trait;
 use reqwest::Method;
 
-use automatons::{Error, State, Task, Transition};
+use automatons::Error;
 
 use crate::client::GitHubClient;
 use crate::resource::{CheckRun, CheckSuiteId, Login, RepositoryName};
@@ -14,66 +13,40 @@ use crate::resource::{CheckRun, CheckSuiteId, Login, RepositoryName};
 /// OAuth Apps and authenticated users must have the `repo` scope to get check runs in a private
 /// repository.
 ///
-/// # Parameters
-///
-/// The task requires the following parameters in the state:
-///
-/// - `Owner`: The account owner of the repository
-/// - `RepositoryName`: The name of the repository
-/// - `CheckSuiteId`: The id of the check suite
-///
 /// https://docs.github.com/en/rest/checks/runs#list-check-runs-in-a-check-suite
-#[derive(Copy, Clone, Eq, PartialEq, Ord, PartialOrd, Hash, Debug, Default)]
-pub struct ListCheckRunsForCheckSuite;
-
-#[async_trait]
-impl Task for ListCheckRunsForCheckSuite {
-    async fn execute(&mut self, state: &mut State) -> Result<Transition, Error> {
-        let mut task = TaskImpl::from_state(state)?;
-
-        let check_runs = task.execute(state).await?;
-        state.insert(check_runs);
-
-        Ok(Transition::Next)
-    }
-}
-
-#[derive(Clone, Debug)]
-struct TaskImpl<'a> {
+#[derive(Copy, Clone, Debug)]
+pub struct ListCheckRunsForCheckSuite<'a> {
     github_client: &'a GitHubClient,
     owner: &'a Login,
     repository: &'a RepositoryName,
+    check_suite_id: &'a CheckSuiteId,
 }
 
-impl<'a> TaskImpl<'a> {
-    fn from_state(state: &'a State) -> Result<TaskImpl<'a>, Error> {
-        let github_client = state
-            .get()
-            .context("failed to get GitHub client from state")?;
-        let owner = state
-            .get::<Login>()
-            .context("failed to get owner from state")?;
-        let repository = state
-            .get::<RepositoryName>()
-            .context("failed to get repository name from state")?;
-
-        Ok(Self {
+impl<'a> ListCheckRunsForCheckSuite<'a> {
+    /// Initializes the task
+    pub fn new(
+        github_client: &'a GitHubClient,
+        owner: &'a Login,
+        repository: &'a RepositoryName,
+        check_suite_id: &'a CheckSuiteId,
+    ) -> Self {
+        Self {
             github_client,
             owner,
             repository,
-        })
+            check_suite_id,
+        }
     }
 
-    async fn execute(&mut self, state: &State) -> Result<Vec<CheckRun>, Error> {
-        let check_suite_id = state
-            .get::<CheckSuiteId>()
-            .context("failed to get check suite id from state")?;
-
+    /// List the check runs for a check suite
+    ///
+    /// Lists check runs for a check suite using its `id`.
+    pub async fn execute(&self) -> Result<Vec<CheckRun>, Error> {
         let url = format!(
             "/repos/{}/{}/check-suites/{}/check-runs",
             self.owner.get(),
             self.repository.get(),
-            check_suite_id
+            self.check_suite_id
         );
 
         let check_runs = self
@@ -88,9 +61,7 @@ impl<'a> TaskImpl<'a> {
 
 #[cfg(test)]
 mod tests {
-    use automatons::{State, Task, Transition};
-
-    use crate::resource::{CheckRun, CheckSuiteId, Login, RepositoryName};
+    use crate::resource::{CheckSuiteId, Login, RepositoryName};
     use crate::testing::check_run::mock_list_check_runs_for_check_suite;
     use crate::testing::client::github_client;
     use crate::testing::token::mock_installation_access_tokens;
@@ -98,77 +69,21 @@ mod tests {
     use super::ListCheckRunsForCheckSuite;
 
     #[tokio::test]
-    async fn task_returns_error_when_github_client_is_missing() {
-        let mut state = State::new();
-
-        state.insert(Login::new("github"));
-        state.insert(RepositoryName::new("hello-world"));
-        state.insert(CheckSuiteId::new(5));
-
-        let mut task = ListCheckRunsForCheckSuite;
-        let transition = task.execute(&mut state).await;
-
-        assert!(transition.is_err());
-    }
-
-    #[tokio::test]
-    async fn task_returns_error_when_login_is_missing() {
-        let mut state = State::new();
-
-        state.insert(github_client());
-        state.insert(RepositoryName::new("hello-world"));
-        state.insert(CheckSuiteId::new(5));
-
-        let mut task = ListCheckRunsForCheckSuite;
-        let transition = task.execute(&mut state).await;
-
-        assert!(transition.is_err());
-    }
-    #[tokio::test]
-    async fn task_returns_error_when_repository_name_is_missing() {
-        let mut state = State::new();
-
-        state.insert(github_client());
-        state.insert(Login::new("github"));
-        state.insert(CheckSuiteId::new(5));
-
-        let mut task = ListCheckRunsForCheckSuite;
-        let transition = task.execute(&mut state).await;
-
-        assert!(transition.is_err());
-    }
-
-    #[tokio::test]
-    async fn task_returns_error_when_check_suite_id_is_missing() {
-        let mut state = State::new();
-
-        state.insert(github_client());
-        state.insert(Login::new("github"));
-        state.insert(RepositoryName::new("hello-world"));
-
-        let mut task = ListCheckRunsForCheckSuite;
-        let transition = task.execute(&mut state).await;
-
-        assert!(transition.is_err());
-    }
-
-    #[tokio::test]
-    async fn task_puts_check_runs_into_state() {
+    async fn task_returns_check_runs() {
         let _token_mock = mock_installation_access_tokens();
         let _content_mock = mock_list_check_runs_for_check_suite();
 
-        let mut state = State::new();
+        let github_client = github_client();
+        let login = Login::new("github");
+        let repository = RepositoryName::new("hello-world");
+        let check_suite_id = CheckSuiteId::new(5);
 
-        state.insert(github_client());
-        state.insert(Login::new("github"));
-        state.insert(RepositoryName::new("hello-world"));
-        state.insert(CheckSuiteId::new(5));
+        let task =
+            ListCheckRunsForCheckSuite::new(&github_client, &login, &repository, &check_suite_id);
 
-        let mut task = ListCheckRunsForCheckSuite;
-        let transition = task.execute(&mut state).await.unwrap();
+        let check_runs = task.execute().await.unwrap();
 
-        assert!(matches!(transition, Transition::Next));
-        assert!(state.get::<Vec<CheckRun>>().is_some());
+        assert_eq!(1, check_runs.len());
     }
 
     #[test]
