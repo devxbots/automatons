@@ -1,6 +1,6 @@
 [package]
 name = "automatons-github"
-version = "0.1.0"
+version = "0.2.0"
 edition = "2021"
 
 description = "GitHub integration for the automatons framework"
@@ -21,7 +21,7 @@ keywords = [
 [dependencies]
 anyhow = { version = "1" }
 async-trait = "0.1"
-automatons = { path = "../../automatons", version = "0.1" }
+automatons = { path = "../../automatons", version = "0.2" }
 chrono = { version = "0.4", features = ["serde"] }
 futures = "0.3.24"
 jsonwebtoken = { version = "8" }
