@@ -6,6 +6,8 @@
 //!
 //! [automatons]: https://github.com/devxbots/automatons
 
+use serde::{Deserialize, Serialize};
+
 use crate::name;
 
 pub use self::account::{Account, AccountId, AccountType, Login};
@@ -14,7 +16,7 @@ pub use self::check_run::{
     CheckRun, CheckRunConclusion, CheckRunId, CheckRunName, CheckRunOutput, CheckRunOutputSummary,
     CheckRunOutputTitle, CheckRunStatus,
 };
-pub use self::check_suite::CheckSuite;
+pub use self::check_suite::{CheckSuite, CheckSuiteId, MinimalCheckSuite};
 pub use self::git::{GitRef, GitSha};
 pub use self::installation::{Installation, InstallationId};
 pub use self::license::{License, LicenseKey, LicenseName, SpdxId};
@@ -44,6 +46,21 @@ name!(
     /// resource in [GitHub's GraphQL API](https://docs.github.com/en/graphql).
     NodeId
 );
+
+/// Field with multiple representations
+///
+/// GitHub truncates data types in some API responses and webhook events to reduce the payload size.
+/// The `Field` enum represents fields in responses that have different representations based on
+/// context.
+#[derive(Copy, Clone, Eq, PartialEq, Ord, PartialOrd, Hash, Debug, Deserialize, Serialize)]
+#[serde(untagged)]
+pub enum Field<Minimal, Full> {
+    /// Minimal representation of the field
+    Minimal(Minimal),
+
+    /// Full representation of the field
+    Full(Full),
+}
 
 #[cfg(test)]
 mod tests {

@@ -4,7 +4,7 @@ use chrono::{DateTime, Utc};
 use serde::{Deserialize, Deserializer, Serialize};
 use url::Url;
 
-use crate::resource::{App, CheckSuite, GitSha, NodeId, PullRequest};
+use crate::resource::{App, CheckSuite, Field, GitSha, MinimalCheckSuite, NodeId, PullRequest};
 use crate::{id, name};
 
 pub use self::conclusion::CheckRunConclusion;
@@ -48,7 +48,7 @@ pub struct CheckRun {
     conclusion: Option<CheckRunConclusion>,
     started_at: DateTime<Utc>,
     completed_at: Option<DateTime<Utc>>,
-    check_suite: CheckSuite,
+    check_suite: Field<MinimalCheckSuite, CheckSuite>,
     app: App,
     pull_requests: Vec<PullRequest>,
 
@@ -137,7 +137,7 @@ impl CheckRun {
 
     /// Returns the check run's check suite.
     #[cfg_attr(feature = "tracing", tracing::instrument)]
-    pub fn check_suite(&self) -> &CheckSuite {
+    pub fn check_suite(&self) -> &Field<MinimalCheckSuite, CheckSuite> {
         &self.check_suite
     }
 

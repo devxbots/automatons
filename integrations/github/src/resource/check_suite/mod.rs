@@ -9,6 +9,10 @@ use crate::resource::{
     App, CheckRunConclusion, CheckRunStatus, GitRef, GitSha, NodeId, PullRequest,
 };
 
+pub use self::minimal::MinimalCheckSuite;
+
+mod minimal;
+
 id!(
     /// Check suite id
     ///
@@ -27,7 +31,9 @@ id!(
 /// Read more: https://docs.github.com/en/rest/guides/getting-started-with-the-checks-api
 #[derive(Clone, Eq, PartialEq, Debug, Deserialize, Serialize)]
 pub struct CheckSuite {
-    id: CheckSuiteId,
+    #[serde(flatten)]
+    minimal: MinimalCheckSuite,
+
     node_id: NodeId,
     head_branch: GitRef,
     head_sha: GitSha,
@@ -46,7 +52,7 @@ impl CheckSuite {
     /// Returns the check suite's id.
     #[cfg_attr(feature = "tracing", tracing::instrument)]
     pub fn id(&self) -> CheckSuiteId {
-        self.id
+        self.minimal.id()
     }
 
     /// Returns the check suite's node id.
@@ -124,7 +130,7 @@ impl CheckSuite {
 
 impl Display for CheckSuite {
     fn fmt(&self, f: &mut Formatter<'_>) -> std::fmt::Result {
-        write!(f, "{}", self.id)
+        write!(f, "{}", self.id())
     }
 }
 
@@ -135,7 +141,7 @@ mod tests {
     #[test]
     fn trait_deserialize() {
         let suite: CheckSuite = serde_json::from_str(include_str!(
-            "../../tests/fixtures/resource/check_suite.json"
+            "../../../tests/fixtures/resource/check_suite.json"
         ))
         .unwrap();
 
@@ -145,7 +151,7 @@ mod tests {
     #[test]
     fn trait_display() {
         let suite: CheckSuite = serde_json::from_str(include_str!(
-            "../../tests/fixtures/resource/check_suite.json"
+            "../../../tests/fixtures/resource/check_suite.json"
         ))
         .unwrap();
 
