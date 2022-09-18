@@ -1,10 +1,9 @@
 use anyhow::Context;
-use async_trait::async_trait;
 use chrono::{DateTime, Utc};
 use serde::Serialize;
 use url::Url;
 
-use automatons::{Error, State, Task, Transition};
+use automatons::Error;
 
 use crate::client::GitHubClient;
 use crate::resource::{
@@ -20,17 +19,14 @@ use crate::resource::{
 /// In a check suite, GitHub limits the number of check runs with the same name to 1000. Once these
 /// check runs exceed 1000, GitHub will start to automatically delete older check runs.
 ///
-/// # Parameters
-///
-/// The task requires the following parameters in the state:
-///
-/// - `Owner`: The account owner of the repository
-/// - `RepositoryName`: The name of the repository
-/// - `CreateCheckRunInput`: The input for the task
-///
 /// https://docs.github.com/en/rest/checks/runs#create-a-check-run
-#[derive(Copy, Clone, Eq, PartialEq, Ord, PartialOrd, Hash, Debug, Default)]
-pub struct CreateCheckRun;
+#[derive(Copy, Clone, Debug)]
+pub struct CreateCheckRun<'a> {
+    github_client: &'a GitHubClient,
+    owner: &'a Login,
+    repository: &'a RepositoryName,
+    check_run_input: &'a CreateCheckRunInput,
+}
 
 /// Input for create check run task
 ///
@@ -81,50 +77,24 @@ pub struct CreateCheckRunInput {
     pub output: Option<CheckRunOutput>,
 }
 
-#[async_trait]
-impl Task for CreateCheckRun {
-    async fn execute(&mut self, state: &mut State) -> Result<Transition, Error> {
-        let task = TaskImpl::from_state(state)?;
-
-        let check_run = task.execute().await?;
-        state.insert(check_run);
-
-        Ok(Transition::Next)
-    }
-}
-
-#[derive(Clone, Debug)]
-struct TaskImpl<'a> {
-    github_client: &'a GitHubClient,
-    owner: &'a Login,
-    repository: &'a RepositoryName,
-    check_run_input: &'a CreateCheckRunInput,
-}
-
-impl<'a> TaskImpl<'a> {
-    fn from_state(state: &'a State) -> Result<TaskImpl<'a>, Error> {
-        let github_client = state
-            .get()
-            .context("failed to get GitHub client from state")?;
-        let owner = state
-            .get::<Login>()
-            .context("failed to get owner from state")?;
-        let repository = state
-            .get::<RepositoryName>()
-            .context("failed to get repository name from state")?;
-        let check_run_input = state
-            .get::<CreateCheckRunInput>()
-            .context("failed to get input for create check run task from state")?;
-
-        Ok(Self {
+impl<'a> CreateCheckRun<'a> {
+    /// Initializes the task
+    pub fn new(
+        github_client: &'a GitHubClient,
+        owner: &'a Login,
+        repository: &'a RepositoryName,
+        check_run_input: &'a CreateCheckRunInput,
+    ) -> Self {
+        Self {
             github_client,
             owner,
             repository,
             check_run_input,
-        })
+        }
     }
 
-    async fn execute(&self) -> Result<CheckRun, Error> {
+    /// Create a check run
+    pub async fn execute(&self) -> Result<CheckRun, Error> {
         let url = format!(
             "/repos/{}/{}/check-runs",
             self.owner.get(),
@@ -143,9 +113,7 @@ impl<'a> TaskImpl<'a> {
 
 #[cfg(test)]
 mod tests {
-    use automatons::{State, Task, Transition};
-
-    use crate::resource::{CheckRun, CheckRunName, GitSha, Login, RepositoryName};
+    use crate::resource::{CheckRunName, GitSha, Login, RepositoryName};
     use crate::testing::check_run::mock_create_check_run;
     use crate::testing::client::github_client;
     use crate::testing::token::mock_installation_access_tokens;
@@ -167,77 +135,20 @@ mod tests {
     }
 
     #[tokio::test]
-    async fn task_returns_error_when_github_client_is_missing() {
-        let mut state = State::new();
-
-        state.insert(Login::new("github"));
-        state.insert(RepositoryName::new("hello-world"));
-        state.insert(input());
-
-        let mut task = CreateCheckRun;
-        let transition = task.execute(&mut state).await;
-
-        assert!(transition.is_err());
-    }
-
-    #[tokio::test]
-    async fn task_returns_error_when_login_is_missing() {
-        let mut state = State::new();
-
-        state.insert(github_client());
-        state.insert(RepositoryName::new("hello-world"));
-        state.insert(input());
-
-        let mut task = CreateCheckRun;
-        let transition = task.execute(&mut state).await;
-
-        assert!(transition.is_err());
-    }
-    #[tokio::test]
-    async fn task_returns_error_when_repository_name_is_missing() {
-        let mut state = State::new();
-
-        state.insert(github_client());
-        state.insert(Login::new("github"));
-        state.insert(input());
-
-        let mut task = CreateCheckRun;
-        let transition = task.execute(&mut state).await;
-
-        assert!(transition.is_err());
-    }
-
-    #[tokio::test]
-    async fn task_returns_error_when_input_is_missing() {
-        let mut state = State::new();
-
-        state.insert(github_client());
-        state.insert(Login::new("github"));
-        state.insert(RepositoryName::new("hello-world"));
-
-        let mut task = CreateCheckRun;
-        let transition = task.execute(&mut state).await;
-
-        assert!(transition.is_err());
-    }
-
-    #[tokio::test]
-    async fn task_puts_check_run_into_state() {
+    async fn task_returns_check_run() {
         let _token_mock = mock_installation_access_tokens();
         let _content_mock = mock_create_check_run();
 
-        let mut state = State::new();
+        let github_client = github_client();
+        let login = Login::new("github");
+        let repository = RepositoryName::new("hello-world");
+        let check_run_input = input();
 
-        state.insert(github_client());
-        state.insert(Login::new("github"));
-        state.insert(RepositoryName::new("hello-world"));
-        state.insert(input());
+        let task = CreateCheckRun::new(&github_client, &login, &repository, &check_run_input);
 
-        let mut task = CreateCheckRun;
-        let transition = task.execute(&mut state).await.unwrap();
+        let check_run = task.execute().await.unwrap();
 
-        assert!(matches!(transition, Transition::Next));
-        assert!(state.get::<CheckRun>().is_some());
+        assert_eq!(4, check_run.id().get());
     }
 
     #[test]
