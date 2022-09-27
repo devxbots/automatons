@@ -17,6 +17,7 @@ pub use self::check_run::{
     CheckRunOutputTitle, CheckRunStatus,
 };
 pub use self::check_suite::{CheckSuite, CheckSuiteId, MinimalCheckSuite};
+pub use self::file::File;
 pub use self::git::{GitRef, GitSha};
 pub use self::installation::{Installation, InstallationId};
 pub use self::license::{License, LicenseKey, LicenseName, SpdxId};
@@ -31,6 +32,7 @@ mod account;
 mod app;
 mod check_run;
 mod check_suite;
+mod file;
 mod git;
 mod installation;
 mod license;
