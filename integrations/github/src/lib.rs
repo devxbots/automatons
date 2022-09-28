@@ -16,5 +16,5 @@ pub mod event;
 pub mod resource;
 pub mod task;
 
-#[cfg(test)]
-mod testing;
+#[allow(missing_docs)]
+pub mod testing;
