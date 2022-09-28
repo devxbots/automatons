@@ -7,9 +7,9 @@ use automatons::Error;
 
 use crate::client::GitHubClient;
 use crate::resource::{
-    CheckRun, CheckRunConclusion, CheckRunName, CheckRunOutput, CheckRunStatus, GitSha, Login,
-    RepositoryName,
+    CheckRun, CheckRunConclusion, CheckRunName, CheckRunStatus, GitSha, Login, RepositoryName,
 };
+use crate::task::CheckRunOutputArgs;
 
 /// Create a check run
 ///
@@ -74,7 +74,7 @@ pub struct CreateCheckRunArgs {
     /// Check runs can accept a variety of data in the output object, including a title and summary
     /// and can optionally provide descriptive details about the run.
     #[serde(skip_serializing_if = "Option::is_none")]
-    pub output: Option<CheckRunOutput>,
+    pub output: Option<CheckRunOutputArgs>,
 }
 
 impl<'a> CreateCheckRun<'a> {
