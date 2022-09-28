@@ -7,8 +7,8 @@ use automatons::Error;
 
 use crate::client::GitHubClient;
 use crate::resource::{
-    CheckRun, CheckRunConclusion, CheckRunId, CheckRunName, CheckRunOutput, CheckRunStatus, Login,
-    RepositoryName,
+    CheckRun, CheckRunConclusion, CheckRunId, CheckRunName, CheckRunOutputSummary,
+    CheckRunOutputTitle, CheckRunStatus, Login, RepositoryName,
 };
 
 /// Update a check run
@@ -71,7 +71,26 @@ pub struct UpdateCheckRunArgs {
     /// Check runs can accept a variety of data in the output object, including a title and summary
     /// and can optionally provide descriptive details about the run.
     #[serde(skip_serializing_if = "Option::is_none")]
-    pub output: Option<CheckRunOutput>,
+    pub output: Option<CheckRunOutputArgs>,
+}
+
+/// Input for check run output
+///
+/// Check runs can accept a variety of data in the `output` object, including a `title` and
+/// `summary` and can optionally provide descriptive details about the run.
+///
+/// https://docs.github.com/en/rest/checks/runs#update-a-check-run
+#[derive(Clone, Eq, PartialEq, Ord, PartialOrd, Hash, Debug, Serialize)]
+pub struct CheckRunOutputArgs {
+    /// The title of the check run output.
+    pub title: CheckRunOutputTitle,
+
+    /// The summary of the check run output.
+    pub summary: CheckRunOutputSummary,
+
+    /// The text with descriptive details about the check run.
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub text: Option<String>,
 }
 
 impl<'a> UpdateCheckRun<'a> {
