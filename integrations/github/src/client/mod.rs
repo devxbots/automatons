@@ -1,3 +1,5 @@
+//! Client for GitHub's REST API
+
 use anyhow::{anyhow, Context};
 use reqwest::header::HeaderValue;
 use reqwest::{Client, Method, RequestBuilder};
@@ -10,7 +12,8 @@ use automatons::Error;
 use crate::resource::{AppId, InstallationId};
 use crate::{name, secret};
 
-pub use self::token::{AppScope, InstallationScope, Token, TokenFactory};
+use self::token::TokenFactory;
+pub use self::token::{AppScope, InstallationScope, Token};
 
 mod token;
 
@@ -42,6 +45,7 @@ pub struct GitHubClient {
 
 #[allow(dead_code)] // TODO: Remove when remaining tasks have been migrated from `github-parts`
 impl GitHubClient {
+    /// Initializes a new instance of the GitHub client
     #[cfg_attr(feature = "tracing", tracing::instrument)]
     pub fn new(
         github_host: GitHubHost,
@@ -58,6 +62,7 @@ impl GitHubClient {
         }
     }
 
+    /// Send a GET request to GitHub
     #[cfg_attr(feature = "tracing", tracing::instrument)]
     pub async fn get<T>(&self, endpoint: &str) -> Result<T, Error>
     where
@@ -69,6 +74,7 @@ impl GitHubClient {
         self.send_request(Method::GET, endpoint, body).await
     }
 
+    /// Send a POST request to GitHub
     #[cfg_attr(feature = "tracing", tracing::instrument(skip(body)))]
     pub async fn post<T>(&self, endpoint: &str, body: Option<impl Serialize>) -> Result<T, Error>
     where
@@ -77,6 +83,7 @@ impl GitHubClient {
         self.send_request(Method::POST, endpoint, body).await
     }
 
+    /// Send a PATCH request to GitHub
     #[cfg_attr(feature = "tracing", tracing::instrument(skip(body)))]
     pub async fn patch<T>(&self, endpoint: &str, body: Option<impl Serialize>) -> Result<T, Error>
     where
@@ -130,6 +137,7 @@ impl GitHubClient {
         Ok(data)
     }
 
+    /// Send a paginated request to GitHub
     #[cfg_attr(feature = "tracing", tracing::instrument)]
     pub async fn paginate<T>(
         &self,

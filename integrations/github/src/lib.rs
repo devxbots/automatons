@@ -11,11 +11,10 @@
 
 mod macros;
 
+pub mod client;
 pub mod event;
 pub mod resource;
 pub mod task;
-
-mod client;
 
 #[cfg(test)]
 mod testing;
