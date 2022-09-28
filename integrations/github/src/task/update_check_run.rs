@@ -22,7 +22,7 @@ pub struct UpdateCheckRun<'a> {
     github_client: &'a GitHubClient,
     owner: &'a Login,
     repository: &'a RepositoryName,
-    check_run_input: &'a UpdateCheckRunInput,
+    check_run_args: &'a UpdateCheckRunArgs,
 }
 
 /// Input for update check run task
@@ -32,7 +32,7 @@ pub struct UpdateCheckRun<'a> {
 ///
 /// https://docs.github.com/en/rest/checks/runs#update-a-check-run
 #[derive(Clone, Eq, PartialEq, Ord, PartialOrd, Hash, Debug, Serialize)]
-pub struct UpdateCheckRunInput {
+pub struct UpdateCheckRunArgs {
     /// The unique identifier of the check run.
     pub check_run_id: CheckRunId,
 
@@ -80,13 +80,13 @@ impl<'a> UpdateCheckRun<'a> {
         github_client: &'a GitHubClient,
         owner: &'a Login,
         repository: &'a RepositoryName,
-        check_run_input: &'a UpdateCheckRunInput,
+        check_run_input: &'a UpdateCheckRunArgs,
     ) -> Self {
         Self {
             github_client,
             owner,
             repository,
-            check_run_input,
+            check_run_args: check_run_input,
         }
     }
 
@@ -98,12 +98,12 @@ impl<'a> UpdateCheckRun<'a> {
             "/repos/{}/{}/check-runs/{}",
             self.owner.get(),
             self.repository.get(),
-            self.check_run_input.check_run_id
+            self.check_run_args.check_run_id
         );
 
         let check_run = self
             .github_client
-            .patch(&url, Some(self.check_run_input))
+            .patch(&url, Some(self.check_run_args))
             .await
             .context("failed to update check run")?;
 
@@ -118,10 +118,10 @@ mod tests {
     use crate::testing::client::github_client;
     use crate::testing::token::mock_installation_access_tokens;
 
-    use super::{UpdateCheckRun, UpdateCheckRunInput};
+    use super::{UpdateCheckRun, UpdateCheckRunArgs};
 
-    fn input() -> UpdateCheckRunInput {
-        UpdateCheckRunInput {
+    fn input() -> UpdateCheckRunArgs {
+        UpdateCheckRunArgs {
             check_run_id: CheckRunId::new(4),
             name: Some(CheckRunName::new("mighty_readme")),
             details_url: None,
