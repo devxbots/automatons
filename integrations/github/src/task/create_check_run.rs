@@ -25,7 +25,7 @@ pub struct CreateCheckRun<'a> {
     github_client: &'a GitHubClient,
     owner: &'a Login,
     repository: &'a RepositoryName,
-    check_run_input: &'a CreateCheckRunInput,
+    check_run_args: &'a CreateCheckRunArgs,
 }
 
 /// Input for create check run task
@@ -35,7 +35,7 @@ pub struct CreateCheckRun<'a> {
 ///
 /// https://docs.github.com/en/rest/checks/runs#create-a-check-run
 #[derive(Clone, Eq, PartialEq, Ord, PartialOrd, Hash, Debug, Serialize)]
-pub struct CreateCheckRunInput {
+pub struct CreateCheckRunArgs {
     /// The name of the check. For example, "code-coverage".
     pub name: CheckRunName,
 
@@ -83,13 +83,13 @@ impl<'a> CreateCheckRun<'a> {
         github_client: &'a GitHubClient,
         owner: &'a Login,
         repository: &'a RepositoryName,
-        check_run_input: &'a CreateCheckRunInput,
+        check_run_input: &'a CreateCheckRunArgs,
     ) -> Self {
         Self {
             github_client,
             owner,
             repository,
-            check_run_input,
+            check_run_args: check_run_input,
         }
     }
 
@@ -103,7 +103,7 @@ impl<'a> CreateCheckRun<'a> {
 
         let check_run = self
             .github_client
-            .post(&url, Some(self.check_run_input))
+            .post(&url, Some(self.check_run_args))
             .await
             .context("failed to create check run")?;
 
@@ -118,10 +118,10 @@ mod tests {
     use crate::testing::client::github_client;
     use crate::testing::token::mock_installation_access_tokens;
 
-    use super::{CreateCheckRun, CreateCheckRunInput};
+    use super::{CreateCheckRun, CreateCheckRunArgs};
 
-    fn input() -> CreateCheckRunInput {
-        CreateCheckRunInput {
+    fn input() -> CreateCheckRunArgs {
+        CreateCheckRunArgs {
             name: CheckRunName::new("mighty_readme"),
             head_sha: GitSha::new("ce587453ced02b1526dfb4cb910479d431683101"),
             details_url: None,
