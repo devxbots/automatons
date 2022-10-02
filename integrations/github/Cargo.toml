@@ -1,6 +1,6 @@
 [package]
 name = "automatons-github"
-version = "0.2.0"
+version = "0.3.0"
 edition = "2021"
 
 description = "GitHub integration for the automatons framework"
@@ -20,7 +20,7 @@ keywords = [
 
 [dependencies.automatons]
 path = "../../automatons"
-version = "0.2"
+version = "0.3"
 features = ["reqwest"]
 
 [dependencies]
