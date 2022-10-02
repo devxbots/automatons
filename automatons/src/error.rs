@@ -33,15 +33,18 @@ pub enum Error {
     #[error("{0}")]
     Configuration(String),
 
+    #[error("failed to find resource at {0}")]
+    NotFound(String),
+
     #[cfg(feature = "reqwest")]
     #[error(transparent)]
     Request(#[from] reqwest::Error),
 
-    #[error("failed to find resource at {0}")]
-    NotFound(String),
-
     #[error("{0}")]
     Serialization(String),
+
+    #[error("{0}")]
+    UnsupportedEvent(String),
 
     #[error(transparent)]
     Unknown(#[from] anyhow::Error),
