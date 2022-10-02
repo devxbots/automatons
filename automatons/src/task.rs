@@ -1,6 +1,6 @@
 use async_trait::async_trait;
 
-use crate::{Error, State};
+use crate::Error;
 
 /// Transition from one task to the next
 ///
@@ -9,12 +9,12 @@ use crate::{Error, State};
 /// the error gracefully. Second, a task can succeed and simply trigger the transition to the next
 /// task. Third, a task can indicate that the automaton should finish early. This can be useful if
 /// no work needs to be done.
-pub enum Transition {
+pub enum Transition<Output> {
     /// Transition to the next task.
-    Next(Box<dyn Task>),
+    Next(Box<dyn Task<Output>>),
 
     /// Skip all other tasks and go straight to the teardown task.
-    Complete,
+    Complete(Output),
 }
 
 /// Executable task
@@ -27,12 +27,12 @@ pub enum Transition {
 /// If a task determines that no more work needs to be done, it can complete the automaton early by
 /// returning a [`Transition`] with the `Complete` variant.
 #[async_trait]
-pub trait Task: Send + Sync {
+pub trait Task<Output>: Send + Sync {
     /// Executes the task.
     ///
     /// Tasks can perform arbitrary units of work. They are executed asynchronously to avoid
     /// blocking the thread when waiting for external resources. Tasks return a [`Result`] with a
     /// [`Transition`], which tells the engine whether to continue, handle an unexpected failure, or
     /// return early since there is no more work to be done.
-    async fn execute(&mut self, state: &mut State) -> Result<Transition, Error>;
+    async fn execute(&mut self) -> Result<Transition<Output>, Error>;
 }
