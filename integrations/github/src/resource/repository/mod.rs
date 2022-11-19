@@ -49,7 +49,7 @@ pub struct Repository {
     description: String,
     homepage: String,
     language: String,
-    license: License,
+    license: Option<License>,
     visibility: Visibility,
     default_branch: String,
     topics: Vec<String>,
@@ -166,7 +166,7 @@ impl Repository {
 
     /// Returns the repository's license.
     #[cfg_attr(feature = "tracing", tracing::instrument)]
-    pub fn license(&self) -> &License {
+    pub fn license(&self) -> &Option<License> {
         &self.license
     }
 
