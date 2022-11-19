@@ -4,7 +4,7 @@
 
 use serde::Serialize;
 
-use crate::resource::{CheckRunOutputSummary, CheckRunOutputTitle};
+use crate::resource::{CheckRunOutput, CheckRunOutputSummary, CheckRunOutputTitle};
 
 pub use self::create_check_run::{CreateCheckRun, CreateCheckRunArgs};
 pub use self::get_file::GetFile;
@@ -37,4 +37,14 @@ pub struct CheckRunOutputArgs {
     /// The text with descriptive details about the check run.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub text: Option<String>,
+}
+
+impl From<&CheckRunOutput> for CheckRunOutputArgs {
+    fn from(output: &CheckRunOutput) -> Self {
+        Self {
+            title: output.title().clone(),
+            summary: output.summary().clone(),
+            text: output.text().clone(),
+        }
+    }
 }
