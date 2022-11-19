@@ -140,6 +140,7 @@ macro_rules! secret {
     ) => {
         $(#[$meta])*
         #[derive(Clone, Debug)]
+        #[derive(serde::Deserialize)]
         pub struct $secret(secrecy::SecretString);
 
         #[allow(dead_code)]
