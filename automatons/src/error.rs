@@ -33,6 +33,10 @@ pub enum Error {
     #[error("{0}")]
     Configuration(String),
 
+    #[cfg(feature = "sqlx")]
+    #[error("{0}")]
+    Database(#[from] sqlx::Error),
+
     #[error("failed to find resource at {0}")]
     NotFound(String),
 
