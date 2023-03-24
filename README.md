@@ -1,5 +1,7 @@
 # 🤖 Automatons
 
+![Maintenance](https://img.shields.io/maintenance/no/2023)
+
 _An automation framework for developers._
 
 This project implements a set of tools and components to automate software
